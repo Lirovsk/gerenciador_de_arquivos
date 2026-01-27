@@ -46,27 +46,34 @@ create_project_parser.add_argument("project_name", type=str, help="Name of the p
 
 args = parser.parse_args()
 
+# ========== Section responsible for configuration ===========
 if args.command == "config":
-    print(args)
+    print(args) # Line used for debugging purposes
+
+    # the following line ensure the user specifies only one of the two options
     if ((args.for_scripts == False) and (args.for_projects == False)) or ((args.for_scripts == True) and (args.for_projects == True)):
         print("\nYou need to specify if the path is for scripts or for projects. Use --for-scripts OR --for-projects\n")
         exit(1)
     else:
+        # configuring for scripts
         if args.for_scripts == True:
+            # this if normalize the user entry for relative paths ensuring the first character is a "/" and making it able to be concatenated
             if args.relative_path is not None:
                 if args.relative_path[0] != "/":
                     args.relative_path = "/" + args.relative_path
                 
+                # with the normalized relative path we can create the full path by concatenating with the current working directory
                 full_path = Path.cwd().as_uri() + args.relative_path
                 resolved_path = Path.from_uri(full_path)
             else: 
                 resolved_path = Path.from_uri(args.absolute_path)
 
-
+            # checking if the path created is a valid directory
             if not resolved_path.is_dir():
                 print("The relative path you provided does not exist. Please create the directory first.")
                 exit(1)
             else:
+                # the following structure is used to ensure that if the config file does not exist it is created with an empty dictionary
                 try: 
                     with open(CONFIG_FILE, "r") as config_file:
                         existing_config = json.load(config_file)
@@ -79,7 +86,8 @@ if args.command == "config":
 
                     existing_config["path for scripts"] = resolved_path.as_uri()
                     with open(CONFIG_FILE, "w") as config_file:
-                        json.dump(existing_config, config_file)               
+                        json.dump(existing_config, config_file)   
+        # configuring for projects            
         else:
             if args.relative_path is not None:
                 if args.relative_path[0] != "/":
@@ -90,10 +98,12 @@ if args.command == "config":
             else: 
                 resolved_path = Path.from_uri(args.absolute_path)
 
+            # checking if the path created is a valid directory
             if not resolved_path.is_dir():
                 print("The relative path you provided does not exist. Please create the directory first.")
                 exit(1)
             else:
+                # the following structure is used to ensure that if the config file does not exist it is created with an empty dictionary
                 try: 
                     with open(CONFIG_FILE, "r") as config_file:
                         existing_config = json.load(config_file)
@@ -107,6 +117,8 @@ if args.command == "config":
                     existing_config["path for projects"] = resolved_path.as_uri()
                     with open(CONFIG_FILE, "w") as config_file:
                         json.dump(existing_config, config_file)
+
+# ========== Section responsible for creating scripts and projects ===========
     
 if args.command == "create-script":
     print(f"Creating script: {args.script_name}")
