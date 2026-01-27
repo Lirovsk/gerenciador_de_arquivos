@@ -13,10 +13,13 @@ By having the paths pre saved, the program can create scripts or projects faster
 ### commands
 The commands are very intuitive, which means the config command is responsible for configurate the paths, the create command is responsible for create the files and so. But there are also some flags that can be used with these commands and this section is all about explainnig them.
 
-#### config
+#### {config}
 The config command is responsible for running settings and stablish some constansts (Ex. the predefined path to scripts). to help the use of this program, some flags are related to it. 
 
 --for-script(-fs): This flag tells the program that the config command is now setting (or changing) the variable responsible to save the path tied to the scripts. This flag does not need a value. It's own behavior set itself to true when the flag is used.
 
---for-projects(-fp) The same as the '--for-script' flag, but for projects. this flags tells the program the variable being used is the one tied to the projects.
+--for-projects(-fp): The same as the '--for-script' flag, but for projects. this flags tells the program the variable being used is the one tied to the projects.
 
+--relative-path(-rp): This flags tells the program you are about to use a relative path. The start point of the relative path will always be the current work directory. This flag receive a string as a path (the format is directory/subdirectory/project_folder).
+
+--absolute-path(-ap): It works similar to the previous flag, but in this case you are using an absolute path to tell the program where your directory is saved. It also receive a string as the argument
