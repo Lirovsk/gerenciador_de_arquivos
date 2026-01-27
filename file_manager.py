@@ -96,7 +96,7 @@ if args.command == "config":
                 full_path = Path.cwd().as_uri() + args.relative_path
                 resolved_path = Path.from_uri(full_path)
             else: 
-                resolved_path = Path.from_uri(args.absolute_path)
+                resolved_path = Path(args.absolute_path)
 
             # checking if the path created is a valid directory
             if not resolved_path.is_dir():
@@ -122,6 +122,27 @@ if args.command == "config":
     
 if args.command == "create-script":
     print(f"Creating script: {args.script_name}")
+    try:
+        with open(CONFIG_FILE, "r") as config_file:
+            existing_config = json.load(config_file)
+    except FileNotFoundError:
+        print("You need to configure the file manager before creating scripts or projects. Use the config command.")
+        exit(1)
+    
+    path_to_use = Path.from_uri(existing_config["path for scripts"])
+    if path_to_use.is_dir() == False:
+        print("The path configured for scripts is not a valid directory. Please check your configuration.")
+        exit(1)
+    
+    path_to_use = path_to_use / f"{args.script_name}.py"
+    with open(path_to_use, "w") as script_file:
+        script_file.write(f"# Script: {args.script_name}\n\n")
+        script_file.write("def main():\n")
+        script_file.write("    pass\n\n")
+        script_file.write("if __name__ == '__main__':\n")
+        script_file.write("    main()\n")
+    
+    
 
 
 if args.command == "create-project":
