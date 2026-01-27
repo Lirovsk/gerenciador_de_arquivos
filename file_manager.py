@@ -147,3 +147,13 @@ if args.command == "create-script":
 
 if args.command == "create-project":
     print(f"Creating project: {args.project_name}")
+    try:
+        with open(CONFIG_FILE, "r") as config_file:
+            existing_config = json.load(config_file)
+    except FileNotFoundError:
+        print("You need to configure the file manager before creating scripts or projects. Use the config command.")
+        exit(1)
+
+    path_to_use = Path(existing_config["path for projects"])
+    path_to_use = path_to_use / f"{args.project_name}"
+    # now how to proceed??
