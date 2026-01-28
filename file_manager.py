@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 import json
+import subprocess
 
 # CONTANTS
 
@@ -48,7 +49,7 @@ args = parser.parse_args()
 
 # ========== Section responsible for configuration ===========
 if args.command == "config":
-    print(args) # Line used for debugging purposes
+    print("\n\n" + args + "\n\n") # Line used for debugging purposes
 
     # the following line ensure the user specifies only one of the two options
     if ((args.for_scripts == False) and (args.for_projects == False)) or ((args.for_scripts == True) and (args.for_projects == True)):
@@ -66,7 +67,7 @@ if args.command == "config":
                 full_path = Path.cwd().as_uri() + args.relative_path
                 resolved_path = Path.from_uri(full_path)
             else: 
-                resolved_path = Path.from_uri(args.absolute_path)
+                resolved_path = Path(args.absolute_path)
 
             # checking if the path created is a valid directory
             if not resolved_path.is_dir():
@@ -154,6 +155,20 @@ if args.command == "create-project":
         print("You need to configure the file manager before creating scripts or projects. Use the config command.")
         exit(1)
 
-    path_to_use = Path(existing_config["path for projects"])
+    path_to_use = Path.from_uri(existing_config["path for projects"])
     path_to_use = path_to_use / f"{args.project_name}"
-    # now how to proceed??
+    path_to_use.mkdir(parents=True, exist_ok=True)
+    
+    path_to_main = path_to_use / "main.py"
+    with open(path_to_main, "w") as main_file:
+        main_file.write(f"# Project: {args.project_name}\n\n")
+        main_file.write("def main():\n")
+        main_file.write("    pass\n\n")
+        main_file.write("if __name__ == '__main__':\n")
+        main_file.write("    main()\n")
+    
+    path_to_README = path_to_use / "README.md"
+    with open(path_to_README, "w") as readme:
+        readme.write(f"# {args.project_name}\n\n")
+
+
