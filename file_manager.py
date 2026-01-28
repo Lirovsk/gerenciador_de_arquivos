@@ -143,6 +143,13 @@ if args.command == "create-script":
         script_file.write("if __name__ == '__main__':\n")
         script_file.write("    main()\n")
     
+    command = ["code", str(path_to_use)]
+    try:
+        answer = subprocess.run(command, capture_output=True, text=True, check=True, shell=True)
+    except subprocess.CalledProcessError as e:
+        print("An error occurred while opening the script in VS Code:")
+        print(e.stderr)
+        exit(1)
     
 
 
@@ -171,4 +178,27 @@ if args.command == "create-project":
     with open(path_to_README, "w") as readme:
         readme.write(f"# {args.project_name}\n\n")
 
+    command = ["git", "init"]
+    try:
+        answer = subprocess.run(command, cwd=path_to_use, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print("An error occurred while initializing the git repository:")
+        print(e.stderr)
+        exit(1)
+    
+    command = ["git", "branch", "-M", "main"]
+    try:
+        answer = subprocess.run(command, cwd=path_to_use, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print("An error occurred while renaming the default branch to main:")
+        print(e.stderr)
+        exit(1)
 
+    command = ["code", str(path_to_use)]
+    try:
+        answer = subprocess.run(command, capture_output=True, text=True, check=True, shell=True)
+    except subprocess.CalledProcessError as e:
+        print("An error occurred while opening the project in VS Code:")
+        print(e.stderr)
+        exit(1)
+    
