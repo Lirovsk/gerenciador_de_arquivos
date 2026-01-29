@@ -23,3 +23,13 @@ The config command is responsible for running settings and stablish some constan
 --relative-path(-rp): This flags tells the program you are about to use a relative path. The start point of the relative path will always be the current work directory. This flag receive a string as a path (the format is directory/subdirectory/project_folder).
 
 --absolute-path(-ap): It works similar to the previous flag, but in this case you are using an absolute path to tell the program where your directory is saved. It also receive a string as the argument
+
+### {create-script}
+The creat-script command tells the program to create a script on the designated path and open it in VSCODE. This command receive a string as value, this string is the name of the script to be created.
+
+The command receive the name of the argument, create the file on the designated path, write a basic template then open it (in this order) in VScode. Before creating the file, the program ensures the path exists and is well setted.
+
+### {create-project}
+It works similar to the 'create-script' command but instead of create the file on the designated path, it creates the directory of the project first then create the files for the project.
+
+The command first create the directory for the hole project, create the files (it create the main.py and the README.md), create git repository, change the name of the branch to main (recomended by GitHub) then open the folder on VScode.
