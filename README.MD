@@ -33,3 +33,11 @@ The command receive the name of the argument, create the file on the designated 
 It works similar to the 'create-script' command but instead of create the file on the designated path, it creates the directory of the project first then create the files for the project.
 
 The command first create the directory for the hole project, create the files (it create the main.py and the README.md), create git repository, change the name of the branch to main (recomended by GitHub) then open the folder on VScode.
+
+## Next objectives
+The next steps for this project will be:
+
+- Refactoring the code to avoid excessive use of if and else;
+- Turning repeated part of the into functions to reduce the amount of written lines;
+- Adding more flags to the 'create-script' and 'create-project' aiming to give more control about the creation process;
+- Studying ways to tranform this code into an executable to be used anywhere in your PC/Mac/Linux;
