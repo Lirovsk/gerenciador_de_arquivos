@@ -122,7 +122,8 @@ if args.command == "config":
 # ========== Section responsible for creating scripts and projects ===========
     
 if args.command == "create-script":
-    print(f"Creating script: {args.script_name}")
+    print(f"Creating script: {args.script_name}") # Line used for debugging purposes
+    # Loading existing configuration
     try:
         with open(CONFIG_FILE, "r") as config_file:
             existing_config = json.load(config_file)
@@ -130,11 +131,13 @@ if args.command == "create-script":
         print("You need to configure the file manager before creating scripts or projects. Use the config command.")
         exit(1)
     
+    # Verifying the path configured for scripts
     path_to_use = Path.from_uri(existing_config["path for scripts"])
     if path_to_use.is_dir() == False:
         print("The path configured for scripts is not a valid directory. Please check your configuration.")
         exit(1)
     
+    # creating the script file and writing a basic template
     path_to_use = path_to_use / f"{args.script_name}.py"
     with open(path_to_use, "w") as script_file:
         script_file.write(f"# Script: {args.script_name}\n\n")
@@ -143,7 +146,8 @@ if args.command == "create-script":
         script_file.write("if __name__ == '__main__':\n")
         script_file.write("    main()\n")
     
-    command = ["code", str(path_to_use)]
+    # opening the script in VS Code
+    command = ["code", str(path_to_use)] # saving the command as a list to be used by subprocess
     try:
         answer = subprocess.run(command, capture_output=True, text=True, check=True, shell=True)
     except subprocess.CalledProcessError as e:
@@ -154,7 +158,9 @@ if args.command == "create-script":
 
 
 if args.command == "create-project":
-    print(f"Creating project: {args.project_name}")
+    print(f"Creating project: {args.project_name}") # Line used for debugging purposes
+
+    # Loading existing configuration
     try:
         with open(CONFIG_FILE, "r") as config_file:
             existing_config = json.load(config_file)
@@ -162,10 +168,12 @@ if args.command == "create-project":
         print("You need to configure the file manager before creating scripts or projects. Use the config command.")
         exit(1)
 
+    # Verifying the path configured for projects
     path_to_use = Path.from_uri(existing_config["path for projects"])
     path_to_use = path_to_use / f"{args.project_name}"
     path_to_use.mkdir(parents=True, exist_ok=True)
     
+    # creating the main.py file and writing a basic template inside the file
     path_to_main = path_to_use / "main.py"
     with open(path_to_main, "w") as main_file:
         main_file.write(f"# Project: {args.project_name}\n\n")
@@ -174,11 +182,13 @@ if args.command == "create-project":
         main_file.write("if __name__ == '__main__':\n")
         main_file.write("    main()\n")
     
+    # creating the README.md file
     path_to_README = path_to_use / "README.md"
     with open(path_to_README, "w") as readme:
         readme.write(f"# {args.project_name}\n\n")
 
-    command = ["git", "init"]
+    # initializing a git repository and renaming the default branch to main
+    command = ["git", "init"] # saving the command as a list to be used by subprocess
     try:
         answer = subprocess.run(command, cwd=path_to_use, capture_output=True, text=True, check=True)
     except subprocess.CalledProcessError as e:
@@ -186,6 +196,7 @@ if args.command == "create-project":
         print(e.stderr)
         exit(1)
     
+    # renaming the default branch to main
     command = ["git", "branch", "-M", "main"]
     try:
         answer = subprocess.run(command, cwd=path_to_use, capture_output=True, text=True, check=True)
@@ -194,6 +205,7 @@ if args.command == "create-project":
         print(e.stderr)
         exit(1)
 
+    # opening the project in VS Code
     command = ["code", str(path_to_use)]
     try:
         answer = subprocess.run(command, capture_output=True, text=True, check=True, shell=True)
