@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 import subprocess
 
-# CONTANTS
+# CONSTANTS
 
 CONFIG_FILE = "file_manager_config.json"
 

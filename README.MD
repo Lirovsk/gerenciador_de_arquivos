@@ -1,3 +1,8 @@
+# Project info:
+- Version: 0.1.0
+- Author: [João Vítor Lira (Lirovsk)](https://github.com/Lirovsk)
+- Last feature added:
+
 # The main idea
 (Versão em português ao final desta página)
 
@@ -23,19 +28,19 @@ The commands are very intuitive, which means the 'config' command is responsible
 #### {config}
 The 'config' command is responsible for running settings and stablish some constansts (Ex. the predefined path to scripts). To help the use of this program, some flags are related to it. 
 
---for-scripts(-fs) 
+``--for-scripts(-fs)`` 
 
 This flag tells the program that the config command is now setting (or changing) the variable responsible to save the path tied to the scripts. This flag does not need a value. It's own behavior set itself to true when the flag is used.
 
---for-projects(-fp)
+``--for-projects(-fp)``
 
 The same as the '--for-scripts' flag, but for projects. This flag tells the program the variable being used is the one tied to the projects.
 
---relative-path(-rp)
+``--relative-path(-rp)``
 
 This flags tells the program you are about to use a relative path. The start point of the relative path will always be the current work directory. This flag receive a string as a path (the format is directory/subdirectory/project_folder).
 
---absolute-path(-ap)
+``--absolute-path(-ap)``
 
 It works similar to the previous flag, but in this case you are using an absolute path to tell the program where your directory will be saved. It also receive a string as the argument
 
@@ -80,19 +85,19 @@ Os comandos são bem intuitivos, o que significa que o comando 'config' é respo
 #### {config}
 O comando 'config' é responsável por rodar as configurações e definir algumas constantes (Ex. o caminho predefinido para scripts). Para ajudar o uso desse programa algumas flags são relacionadas a esse comando.
 
---for-sccripts(-fs)
+``--for-sccripts(-fs)``
 
 Essa flag diz ao programa que o comando de configuração está configurando (ou trocando) a variável responsável por salvar o caminho atrelado aos scripts. Essa flag não precisa receber nenhum valor; O seu próprio comportamento se configura para verdadeiro quando essa flag é usada.
 
---for-projects(-fp)
+``--for-projects(-fp)``
 
 A mesma forma que a flag '--for-scripts', mas para projetos. Essa flag conta para o programa que a variável sendo manipulada é a atrelada aos projetos.
 
---relative-path(-rp)
+``--relative-path(-rp)``
 
 Essa flag conta ao programa que você está prestes a usar um caminho relativo. O ponto inicial do caminho relativo sempre será o seu diretório de trabalho atual. Essa flag recebe uma string como caminho (o formato é diretório/subdiretório/pasta_projeto).
 
---absolute-path(-ap)
+``--absolute-path(-ap)``
 
 Funciona de maneira similar a flag anterior, mas nesse caso você está usando um caminho absoluto para dizer ao programa onde o diretório será salvo. Também recebe uma string como argumento.
 
@@ -113,4 +118,3 @@ Os próximos passo para esse projeto serão:
 - Transformar partes repetidas de código em funções para reduzir a quantidade de linhas escritas;
 - Adicionar mais flags ao comando 'create-script' e 'create-project' mirando fornecer mais cobtrole sobre o processo de criação;
 - Estudar maneiras de transformar esse código em executável para ser usado em qualquer lugar do seu PC/Mac/Linux
-- 
