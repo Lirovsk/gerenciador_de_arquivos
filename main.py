@@ -1,4 +1,5 @@
 import argparse
+from request_processor import config_manager
 
 parser = argparse.ArgumentParser(prog='file_manager',
                                   description='A simple file manager that allows you to perform basic file operations.',
@@ -12,11 +13,11 @@ subparsers = parser.add_subparsers(dest='command', help='available commands', re
 
 # ++++ Subparser for configuration ++++
 config = subparsers.add_parser('config', help='Configure the file manager')
+
 two_subparse_config = config.add_subparsers(dest='config_area', help='which area to configure', required=True) #cria subparser para escolher entre configurar para scripts ou projetos
-
 for_scripts = two_subparse_config.add_parser('for-scripts', help='Configure the file manager for scripts')
-scripts_subparsers = for_scripts.add_subparsers(dest='scripts_config', help='what to configure for scripts', required=True) #cria subparser para escolher o que configurar para scripts, como o path
 
+scripts_subparsers = for_scripts.add_subparsers(dest='config_to_set', help='what to configure for scripts', required=True) #cria subparser para escolher o que configurar para scripts, como o path
 scripts_path = scripts_subparsers.add_parser('path', help='Configure path for scripts') # essa linha cria o chamado "path" dentro do "for-scripts", ou seja, o comando completo seria "config for-scripts path"
 scripts_path.add_argument('path_value', help='The path to be the default for creating the files') # esse argumento é obrigatório, ou seja, o comando completo seria "config for-scripts path <path_value>", onde <path_value> é o valor do caminho que o usuário quer configurar
 scripts_path.add_argument('--relative-path', '-rp', action='store_true', help='Use a relative path to be the default for creating the files', default=None)
@@ -27,7 +28,7 @@ scripts_open_config.add_argument('--open', '-o', action='store_true', help='Open
 scripts_open_config.add_argument('--no-open', '-no', action='store_false', help='Do not open the files after creating them', default=True, dest='open_files') # esse argumento é opcional, ou seja, o comando completo seria "config for-scripts open-config --no-open" para não abrir os arquivos após criá-los, ou "config for-scripts open-config" para abrir os arquivos após criá-los (o padrão é abrir os arquivos)
 
 for_projects = two_subparse_config.add_parser('for-projects', help='Configure the file manager for projects')
-projects_subparsers = for_projects.add_subparsers(dest='projects_config', help='what to configure for projects', required=True)
+projects_subparsers = for_projects.add_subparsers(dest='config_to_set', help='what to configure for projects', required=True)
 
 projects_path = projects_subparsers.add_parser('path', help='Configure path for projects')
 projects_path.add_argument('path_value', help='The path to be the default for creating the files')
@@ -65,7 +66,13 @@ open_script.add_argument('script_name', help='The name of the script to be opene
 open_project = two_subparse_open.add_parser('project', help='Open a project')
 open_project.add_argument('project_name', help='The name of the project to be opened')
 
-args = parser.parse_args("open project nome1".split())
+args = parser.parse_args("config for-scripts path documents -rp".split())
 
 print(args)
 
+if args.command == 'config':
+    config_manager.save_config(args)
+if args.command == 'create':
+    print("Create command selected")
+if args.command == 'open':
+    print("Open command selected")
