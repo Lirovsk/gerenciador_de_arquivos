@@ -1,5 +1,5 @@
 import argparse
-from request_processor import config_manager
+from request_processor import config_manager, open_manager, search_manager, create_manager
 
 parser = argparse.ArgumentParser(prog='file_manager',
                                   description='A simple file manager that allows you to perform basic file operations.',
@@ -11,68 +11,63 @@ parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
 subparsers = parser.add_subparsers(dest='command', help='available commands', required=True,
                       )
 
-# ++++ Subparser for configuration ++++
-config = subparsers.add_parser('config', help='Configure the file manager')
+config_parser = subparsers.add_parser('config', help='Configure paths and settings for different areas')
 
-two_subparse_config = config.add_subparsers(dest='config_area', help='which area to configure', required=True) #cria subparser para escolher entre configurar para scripts ou projetos
-for_scripts = two_subparse_config.add_parser('for-scripts', help='Configure the file manager for scripts')
+sub_subparser1 = config_parser.add_subparsers(dest='config_action', help='actions to configure different areas')
+# project area
+set_projects_path = sub_subparser1.add_parser('set-project-path', help='Set the path for projects')
+set_projects_path.add_argument('value', help='The path value to set for projects')
+set_projects_path.add_argument('--absolute-path', '-ap', action='store_true', help='Indicates that the provided path is an absolute path', dest='absolute_path')
+set_projects_path.add_argument('--relative-path', '-rp', action='store_false', help='Indicates that the provided path is a relative path', dest='absolute_path')
 
-scripts_subparsers = for_scripts.add_subparsers(dest='config_to_set', help='what to configure for scripts', required=True) #cria subparser para escolher o que configurar para scripts, como o path
-scripts_path = scripts_subparsers.add_parser('path', help='Configure path for scripts') # essa linha cria o chamado "path" dentro do "for-scripts", ou seja, o comando completo seria "config for-scripts path"
-scripts_path.add_argument('path_value', help='The path to be the default for creating the files') # esse argumento é obrigatório, ou seja, o comando completo seria "config for-scripts path <path_value>", onde <path_value> é o valor do caminho que o usuário quer configurar
-scripts_path.add_argument('--relative-path', '-rp', action='store_true', help='Use a relative path to be the default for creating the files', default=None)
-scripts_path.add_argument('--absolute-path', '-ap', action='store_true', help='Use an absolute path to be the default for creating the files', default=None)
+set_project_extension = sub_subparser1.add_parser('set-project-extension', help='Set the default file extension for projects')
+set_project_extension.add_argument('value', help='The file extension to set for projects (e.g., .py, .js)')
 
-scripts_open_config = scripts_subparsers.add_parser('open-config', help='Configure how the files should be opened') # essa linha cria o chamado "open-config" dentro do "for-scripts", ou seja, o comando completo seria "config for-scripts open-config"
-scripts_open_config.add_argument('--open', '-o', action='store_true', help='Open the files after creating them', default=True, dest='open_files') # esse argumento é opcional, ou seja, o comando completo seria "config for-scripts open-config --open" para abrir os arquivos após criá-los, ou "config for-scripts open-config" para não abrir os arquivos após criá-los (o padrão é abrir os arquivos)
-scripts_open_config.add_argument('--no-open', '-no', action='store_false', help='Do not open the files after creating them', default=True, dest='open_files') # esse argumento é opcional, ou seja, o comando completo seria "config for-scripts open-config --no-open" para não abrir os arquivos após criá-los, ou "config for-scripts open-config" para abrir os arquivos após criá-los (o padrão é abrir os arquivos)
+set_project_open = sub_subparser1.add_parser('set-project-open', help='Configure whether to open and/or configure some areas of a project')
+set_project_open.add_argument('config_to_set', help='The specific configuration to set for opening projects (e.g., git, open_files,open_git)')
+set_project_open.add_argument('value', help='The value to set for the specified configuration (e.g., true, false, .py)')
 
-for_projects = two_subparse_config.add_parser('for-projects', help='Configure the file manager for projects')
-projects_subparsers = for_projects.add_subparsers(dest='config_to_set', help='what to configure for projects', required=True)
+# scripts area
+set_scripts_path = sub_subparser1.add_parser('set-script-path', help='Set the path for scripts')
+set_scripts_path.add_argument('value', help='The path value to set for scripts')
+set_scripts_path.add_argument('--absolute-path', '-ap', action='store_true', help='Indicates that the provided path is an absolute path', dest='absolute_path')
+set_scripts_path.add_argument('--relative-path', '-rp', action='store_false', help='Indicates that the provided path is a relative path', dest='absolute_path')
 
-projects_path = projects_subparsers.add_parser('path', help='Configure path for projects')
-projects_path.add_argument('path_value', help='The path to be the default for creating the files')
-projects_path.add_argument('--relative-path', '-rp', action='store_true', help='Use a relative path to be the default for creating the files', default=None)
-projects_path.add_argument('--absolute-path', '-ap', action='store_true', help='Use an absolute path to be the default for creating the files', default=None)
+set_scripts_open = sub_subparser1.add_parser('set-script-open', help='Configure whether to open scripts')
+set_scripts_open.add_argument('config_to_set', help='The specific configuration to set for opening scripts (e.g., open_files)')
+set_scripts_open.add_argument('value', help='The value to set for the specified configuration (e.g., true, false)')
 
-projects_open_config = projects_subparsers.add_parser('open-config', help='Configure how the files should be opened')
-projects_open_config.add_argument('open_config', help='Configure how the files should be opened', choices=['open_folder', 'git'], default=None) # armazena o valor do argumento em "open_config", que pode ser "open_folder" ou "git"
-projects_open_config.add_argument('--open', '-o', action='store_true', help='Open the files after creating them', default=True, dest='open_files')
-projects_open_config.add_argument('--no-open', '-no', action='store_false', help='Do not open the files after creating them', default=True, dest='open_files')
+set_script_extension = sub_subparser1.add_parser('set-script-extension', help='Set the default file extension for scripts')
+set_script_extension.add_argument('value', help='The file extension to set for scripts (e.g., .py, .js)')
+
+# open configurations
+open_parser = subparsers.add_parser('open', help='Open files or directories based on the configured paths')
+open_parser.add_argument('open_area', help='The area to open (e.g., project, script)')
+open_parser.add_argument('file_to_open', help='Specific files to open within the area (optional)')
+
+# create command
+create_parser = subparsers.add_parser('create', help='Create new files or directories based on the configured paths')
+create_parser.add_argument('create_area', help='The area to create in (e.g., project, script)')
+create_parser.add_argument('name', help='The name of the file or directory to create')
+
+# search command
+search_parser = subparsers.add_parser('search', help='Search for files or directories based on the configured paths')
+search_parser.add_argument('search_area', help='The area to search in (e.g., project, script)')
+search_parser.add_argument('search_name', nargs='?', default=None, help='The search query to find specific files or directories (e.g., filename or part of it)')
+search_parser.add_argument('--all', '-a', action='store_true', help='Search for all files and directories in the specified area', dest='search_all')
+
+args = parser.parse_args()
 
 
-
-# ++++ Subparser for creating files ++++
-create = subparsers.add_parser('create', help='Create a new file')
-two_subparse_create = create.add_subparsers(dest='create_area', help='which area to create the file in', required=True)
-
-create_script = two_subparse_create.add_parser('script', help='Create a new script')
-create_script.add_argument('script_name', help='The name of the script to be created')
-create_script.add_argument('--no-open', '-no', action='store_false', help='Do not open the script after creating it', default=None, dest='open_script')
-
-create_project = two_subparse_create.add_parser('project', help='Create a new project')
-create_project.add_argument('project_name', help='The name of the project to be created')
-create_project.add_argument('--no-open', '-no', action='store_false', help='Do not open the project after creating it', default=None, dest='open_project')
-create_project.add_argument('--no-open-git', '-nogit', action='store_false', help='Do not initialize a git repository in the project after creating it', default=None, dest='init_git')
-
-
-# suparse to open files
-open_file = subparsers.add_parser('open', help='Open a file')
-two_subparse_open = open_file.add_subparsers(dest='open_area', help='which area to open the file in', required=True)
-
-open_script = two_subparse_open.add_parser('script', help='Open a script')
-open_script.add_argument('script_name', help='The name of the script to be opened')
-
-open_project = two_subparse_open.add_parser('project', help='Open a project')
-open_project.add_argument('project_name', help='The name of the project to be opened')
-
-args = parser.parse_args("config for-scripts path documents -rp".split())
-
-print(args)
 
 if args.command == 'config':
     config_manager.save_config(args)
 if args.command == 'create':
-    print("Create command selected")
+    create_manager.create(args)
+    pass
 if args.command == 'open':
+    open_manager.open(args)
     print("Open command selected")
+if args.command == 'search':
+    search_manager.search(args)
+    print("Search command selected")
