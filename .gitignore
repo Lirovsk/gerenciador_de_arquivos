@@ -1,3 +1,2 @@
-path_test.py
-test_json.py
-test2_json.py
+*.pyc
+test*.py
