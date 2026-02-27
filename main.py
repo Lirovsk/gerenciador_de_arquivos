@@ -49,6 +49,7 @@ open_parser.add_argument('file_to_open', help='Specific files to open within the
 create_parser = subparsers.add_parser('create', help='Create new files or directories based on the configured paths')
 create_parser.add_argument('create_area', help='The area to create in (e.g., project, script)')
 create_parser.add_argument('name', help='The name of the file or directory to create')
+create_parser.add_argument('--extension', '-e', nargs='?', default='default', help='The file extension to use when creating a file (optional, default is "default" which uses the configured extension for the area)', dest='extension_to_use'  )
 
 # search command
 search_parser = subparsers.add_parser('search', help='Search for files or directories based on the configured paths')
@@ -59,15 +60,11 @@ search_parser.add_argument('--all', '-a', action='store_true', help='Search for 
 args = parser.parse_args()
 
 
-
 if args.command == 'config':
     config_manager.save_config(args)
 if args.command == 'create':
     create_manager.create(args)
-    pass
 if args.command == 'open':
     open_manager.open(args)
-    print("Open command selected")
 if args.command == 'search':
     search_manager.search(args)
-    print("Search command selected")
