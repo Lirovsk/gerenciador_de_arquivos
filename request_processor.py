@@ -39,6 +39,31 @@ class config_manager:
     
     @staticmethod
     def save_config(args: dict):
+        """
+        Save configuration settings based on the specified action.
+        This function processes various configuration actions for project and script settings,
+        including paths, extensions, and open status flags. It retrieves the current configuration,
+        updates it with the provided values, and persists the changes.
+        Args:
+            args (dict): A dictionary containing configuration parameters with the following keys:
+                - config_action (str): The action to perform. Supported values:
+                    - 'set-project-path': Set the project directory path
+                    - 'set-project-extension': Set the file extension filter for projects
+                    - 'set-project-open': Set whether the project should be opened (boolean string)
+                    - 'set-script-path': Set the script directory path
+                    - 'set-script-open': Set whether the script should be opened (boolean string)
+                    - 'set-script-extension': Set the file extension filter for scripts
+                - value (str): The value to set for the configuration
+                - config_to_set (str): The specific config key to update (used for open flags)
+        Returns:
+            None
+        Raises:
+            Prints "Invalid config action." message if an unsupported config_action is provided.
+        Note:
+            Boolean string values ('true'/'false') are converted to Python boolean types
+            for open status configurations.
+        """
+        
         match args.config_action:
             case 'set-project-path':
                 config_manager.save_project_config(args)    
@@ -87,6 +112,23 @@ class config_manager:
     
     @staticmethod
     def save_project_config(args: dict):
+        """
+        Save and initialize project configuration settings.
+        Saves the project path to the configuration manager and initializes default
+        project settings if they are not already set (git support, open files tracking,
+        and file extension filter).
+        Args:
+            args (dict): A dictionary containing:
+                - value (str): The project path value to save
+                - absolute_path (str): The absolute path of the project
+        Returns:
+            None
+        Side Effects:
+            - Saves the project path to the configuration manager
+            - Initializes 'git', 'open_files', and 'extension' settings if not present
+            - Updates the configuration manager with the modified config
+        """
+        
         config_manager.save_path('project', 'path', args.value, args.absolute_path)
                 
         config = config_manager.retrive_config()
@@ -97,7 +139,25 @@ class config_manager:
         config_manager.set_config(config)
         
     @staticmethod
-    def save_script_config(args: dict):  
+    def save_script_config(args: dict): 
+        """
+        Save the script configuration with the provided arguments.
+        This function updates the script configuration by setting the script path,
+        and ensures default values are set for 'open_files' and 'extension' options.
+        Args:
+            args (dict): A dictionary containing:
+                - value (str): The script path value to be saved.
+                - absolute_path (str): The absolute path of the script.
+        Returns:
+            None
+        Side Effects:
+            - Saves the script path to the configuration manager.
+            - Retrieves the current configuration.
+            - Sets 'open_files' to True if not already defined in script config.
+            - Sets 'extension' to '.py' if not already defined in script config.
+            - Updates the configuration manager with the modified config.
+        """
+         
         config_manager.save_path('script', 'path', args.value, args.absolute_path)
                 
         config = config_manager.retrive_config()
@@ -130,6 +190,18 @@ class open_manager:
     
     @staticmethod
     def open(args: dict):
+        """
+        Opens a file or project based on the specified area.
+        Args:
+            args (dict): A dictionary containing:
+                - open_area (str): The type of area to open. Can be 'project' or 'script'.
+                - file_to_open (str): The path or identifier of the file/project to open.
+        Raises:
+            Prints an error message if open_area is not 'project' or 'script'.
+        Returns:
+            None
+        """
+        
         match args.open_area:
             case 'project':
                 open_manager.open_project(args.file_to_open)
@@ -141,6 +213,19 @@ class open_manager:
     
     @staticmethod
     def open_project(project_name: str):
+        """
+        Opens a project in Visual Studio Code.
+        Retrieves the configured project path from the config manager, constructs the full path
+        to the specified project, and opens it in VS Code. Handles both directories and files.
+        Args:
+            project_name (str): The name of the project to open.
+        Raises:
+            ValueError: If the project path is not configured in the config file.
+            ValueError: If the specified project does not exist in the configured project path.
+        Returns:
+            None
+        """
+        
         config = config_manager.retrive_config()
         project_config = config.get('project', {})
         project_path = project_config.get('path')
@@ -158,6 +243,21 @@ class open_manager:
     
     @staticmethod
     def open_script(script_name: str):
+        """
+        Opens a script file or directory in Visual Studio Code.
+        Retrieves the configured script path from the configuration manager,
+        constructs the full path to the specified script, validates its existence,
+        and opens it in VS Code. Directories are opened directly, while files are
+        opened in a new VS Code window.
+        Args:
+            script_name (str): The name of the script file or directory to open.
+        Raises:
+            ValueError: If the script path is not configured in the config file.
+            ValueError: If the specified script does not exist in the configured path.
+        Returns:
+            None
+        """
+        
         config = config_manager.retrive_config()
         script_config = config.get('script', {})
         script_path = script_config.get('path')
@@ -177,6 +277,22 @@ class create_manager:
     
     @staticmethod
     def create(args: dict):
+        """
+        Create a new project or script based on the specified area.
+        Args:
+            args (dict): A dictionary containing the following keys:
+                - create_area (str): The type of item to create. Must be 'project' or 'script'.
+                - name (str): The name of the project or script to create.
+                - extension_to_use (str): The file extension to use for the created item.
+        Returns:
+            None
+        Raises:
+            Prints an error message if create_area is not 'project' or 'script'.
+        Examples:
+            >>> create({'create_area': 'project', 'name': 'my_project', 'extension_to_use': '.py'})
+            >>> create({'create_area': 'script', 'name': 'my_script', 'extension_to_use': '.py'})
+        """
+        
         match args.create_area:
             case 'project':
                 create_manager.create_project(args.name, args.extension_to_use)
@@ -187,6 +303,30 @@ class create_manager:
     
     @staticmethod
     def create_project(project_name: str, extension_to_use: str):
+        """
+        Create a new project directory with initial files and optional Git initialization.
+        This function creates a project folder at the configured project path with:
+        - A README.md file containing basic project information
+        - A main file with the specified extension
+        - Optional Git repository initialization
+        - Optional opening of the project in VS Code
+        Args:
+            project_name (str): The name of the project to create. This will be used as the 
+                               directory name and in the generated file headers.
+            extension_to_use (str): The file extension for the main file. Use 'default' to 
+                                   use the extension from the project configuration, or specify 
+                                   a custom extension (e.g., '.py', '.js').
+        Raises:
+            ValueError: If the project path is not configured in the config manager.
+        Notes:
+            - The function behavior differs slightly between Windows and Unix-like systems 
+              for the mkdir command (with/without shell=True flag).
+            - Git initialization and VS Code opening are controlled by the project 
+              configuration settings ('git' and 'open_files' keys).
+            - Requires git and code (VS Code CLI) to be available in the system PATH 
+              if those features are enabled.
+        """
+        
         config = config_manager.retrive_config()
         project_config = config.get('project', {})
         project_path = project_config.get('path')
@@ -229,6 +369,30 @@ class create_manager:
     
     @staticmethod
     def create_script(script_name: str, extension_to_use: str):
+        """
+        Create a new script file with the specified name and extension.
+        This function creates a script file in the configured script directory.
+        The script file is initialized with a standard header comment. On non-Windows
+        systems, it also creates a directory for the script. If configured, the created
+        script file is automatically opened in the default code editor (VS Code).
+        Args:
+            script_name (str): The name of the script to create (without extension).
+            extension_to_use (str): The file extension to use for the script.
+                If set to 'default', uses the extension specified in the configuration.
+                Otherwise, uses the provided extension string.
+        Raises:
+            ValueError: If the script path is not configured in the configuration file.
+        Returns:
+            None
+        Note:
+            - On Windows (os.name == 'nt'): Creates the script file directly.
+            - On other systems: Creates a directory with the script name, then creates
+              the script file inside it.
+            - The script file is populated with a standard header comment.
+            - If 'open_files' is enabled in the script configuration, the created
+              file is automatically opened in VS Code.
+        """
+        
         config = config_manager.retrive_config()
         script_config = config.get('script', {})
         script_path = script_config.get('path')
@@ -251,6 +415,17 @@ class create_manager:
 class search_manager:
     @staticmethod
     def search(args: dict):
+        """
+        Search for files or scripts based on the specified search area.
+        Args:
+            args (dict): A dictionary containing search parameters with the following keys:
+                - search_area (str): The area to search in. Valid values are 'project' or 'script'.
+                - search_name (str): The name or pattern to search for.
+                - search_all (bool): Whether to search all occurrences or just the first match.
+        Raises:
+            Prints an error message if search_area is not 'project' or 'script'.
+        """
+        
         match args.search_area:
             case 'project':
                 search_manager.search_project(args.search_name, args.search_all)
@@ -261,6 +436,24 @@ class search_manager:
     
     @staticmethod
     def search_project(search_name: str, search_all: bool):
+        """
+        Search for projects or items in the configured project directory.
+        Args:
+            search_name (str): The name or partial name of the project/item to search for.
+                              Ignored if search_all is True.
+            search_all (bool): If True, displays all items in the project directory.
+                              If False, searches for items matching search_name.
+        Raises:
+            ValueError: If the project path is not configured in the config file.
+            ValueError: If the configured project path does not exist.
+        Returns:
+            None: Prints the names of found items to stdout.
+        Note:
+            - When search_all is True, all items in the project directory are listed.
+            - When search_all is False, only items containing search_name are listed.
+            - If no items match the search criteria, a message is printed to inform the user.
+        """
+        
         config = config_manager.retrive_config()
         project_config = config.get('project', {})
         project_path = project_config.get('path')
@@ -288,6 +481,26 @@ class search_manager:
     
     @staticmethod
     def search_script(search_name: str, search_all: bool):
+        """
+        Search for scripts in the configured script directory.
+        This function searches for script files in the path specified in the configuration.
+        It can either list all scripts or search for scripts matching a specific name.
+        Args:
+            search_name (str): The name or partial name of the script to search for.
+                              Ignored if search_all is True.
+            search_all (bool): If True, lists all scripts in the configured directory.
+                              If False, searches for scripts matching search_name.
+        Raises:
+            ValueError: If the script path is not configured in the configuration file.
+            ValueError: If the configured script path does not exist.
+        Returns:
+            None: Prints the names of found scripts to the console.
+        Note:
+            - If search_all is False and no items are found matching search_name,
+              a message is printed to inform the user.
+            - Only the last part of the file path (filename) is printed.
+        """
+        
         config = config_manager.retrive_config()
         script_config = config.get('script', {})
         script_path = script_config.get('path')
@@ -317,18 +530,69 @@ class AsideTasks:
     
     @staticmethod
     def set_if_none(config_dict: dict, key: str, value: any):
+        """
+        Set a configuration value only if the key does not already exist in the dictionary.
+        Args:
+            config_dict (dict): The configuration dictionary to update.
+            key (str): The key to check and potentially set.
+            value (any): The value to assign if the key is not present.
+        Returns:
+            None
+        Note:
+            Prints the updated dictionary to stdout if a new key-value pair is added.
+        """
+        
         if key not in config_dict:
             config_dict[key] = value
             print(config_dict)
             
     @staticmethod
     def create_config_if_none(config:dict, config_area: str):
+        def create_config_if_none(config: dict, config_area: str):
+            """
+            Ensure a configuration area exists in the config dictionary.
+            Creates an empty dictionary for the specified config_area key if it does not
+            already exist in the config dictionary.
+            Args:
+                config (dict): The configuration dictionary to modify.
+                config_area (str): The key/section name to ensure exists in the config.
+            Returns:
+                dict: The modified config dictionary with the config_area initialized if needed.
+            """
+        
         if config_area not in config:
             config[config_area] = {}
         return config
     
     @staticmethod
     def normalize_path(path_value: str, absolute_path: bool):
+        def normalize_path(path_value: str, absolute_path: bool) -> tuple[str, Path]:
+            """
+            Normalize a file path to a standardized URI format with validation.
+            This function converts a given path string into a normalized URI representation
+            and returns both the URI and a Path object for further validation or processing.
+            Args:
+                path_value (str): The path to normalize. Can be either an absolute path
+                    (with drive letter on Windows) or a relative path.
+                absolute_path (bool): If True, treats path_value as an absolute path.
+                    If False, treats it as a relative path and prepends the current
+                    working directory.
+            Returns:
+                tuple[str, Path]: A tuple containing:
+                    - full_path (str): The normalized path as a URI string.
+                    - path_check (Path): A Path object representing the full path
+                        for validation purposes.
+            Raises:
+                ValueError: On Windows systems, if absolute_path is True and the
+                    path_value does not include a drive letter (e.g., 'C:').
+            Note:
+                - On Windows, absolute paths must include a drive letter.
+                - On non-Windows systems, relative paths are automatically prefixed
+                    with '/' if not already present.
+                - The function uses the current working directory as the base for
+                    relative paths.
+            """
+        
         
         if absolute_path:
             if os.name == 'nt': # Windows
