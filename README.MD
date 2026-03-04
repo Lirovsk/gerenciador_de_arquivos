@@ -1,5 +1,5 @@
 # Project info:
-- Version: 0.1.0
+- Version: 2.0.0
 - Author: [João Vítor Lira (Lirovsk)](https://github.com/Lirovsk)
 - Last feature added:
 
