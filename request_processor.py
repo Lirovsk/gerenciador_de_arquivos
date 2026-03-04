@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 from functools import wraps
+import shutil
 
 CONFIG_FILE = "file_manager_config.json"
 
@@ -526,6 +527,106 @@ class search_manager:
             if found_items == []:
                 print(f"No items found matching '{search_name}' in the configured script path.")           
     
+class delete_manager:
+    @staticmethod
+    def delete(args: dict):
+        """
+        Delete a project or script based on the specified delete area.
+        Args:
+            args (dict): A dictionary containing deletion parameters with the following keys:
+                - delete_area (str): The type of entity to delete ('project' or 'script').
+                - delete_name (str): The name of the project or script to delete.
+                - force_delete (bool): Whether to force deletion without confirmation.
+        Raises:
+            None: Prints an error message if delete_area is not 'project' or 'script'.
+        Returns:
+            None
+        """
+        
+        if args.delete_area == 'project':
+            delete_manager.delete_project(args.delete_name, args.force_delete)
+        elif args.delete_area == 'script':
+            delete_manager.delete_script(args.delete_name, args.force_delete)
+        else:
+            print("Invalid delete area.")
+            
+    @staticmethod
+    def delete_project(project: str, force_delete: bool):
+        """
+        Delete a project directory from the configured project path.
+        Args:
+            project (str): The name of the project to delete.
+            force_delete (bool): If True, delete the project without confirmation.
+                                If False, prompt the user for confirmation before deletion.
+        Raises:
+            ValueError: If the project path is not configured in the config file.
+            ValueError: If the specified project does not exist in the configured project path.
+        Returns:
+            None
+        Notes:
+            - If force_delete is False, the user will be prompted to confirm the deletion.
+            - User can confirm with 'yes' or 'y' (case-insensitive).
+            - This action cannot be undone as the entire project directory will be removed.
+            - Prints a success message upon successful deletion.
+            - Prints a cancellation message if the user declines the confirmation prompt.
+        """
+        
+        config = config_manager.retrive_config()
+        project_config = config.get('project', {})
+        project_path = project_config.get('path')
+        if not project_path:
+            raise ValueError("Project path is not configured. Please set the project path before trying to delete a project.")
+        full_path = Path.from_uri(project_path) / project
+        if not full_path.exists():
+            raise ValueError(f"The specified project '{project}' does not exist in the configured project path.")
+        
+        if force_delete:
+            shutil.rmtree(full_path)
+        else:
+                confirmation = input(f"Are you sure you want to delete the project '{project}'? This action cannot be undone. (yes/no): ")
+                if confirmation.lower() in ['yes', 'y']:
+                    shutil.rmtree(full_path)
+                else:
+                    print("Project deletion cancelled.")
+        
+        print (f"Project '{project}' has been deleted.")
+    
+    @staticmethod
+    def delete_script(script: str, force_delete: bool):
+        """
+        Delete a script from the configured script path.
+        Args:
+            script (str): The name of the script to delete.
+            force_delete (bool): If True, delete the script without confirmation.
+                                If False, prompt the user for confirmation before deletion.
+        Raises:
+            ValueError: If the script path is not configured or if the specified script does not exist.
+        Returns:
+            None
+        Prints a confirmation message after successful deletion, or a cancellation message if the user declines.
+        """
+        
+        config = config_manager.retrive_config()
+        script_config = config.get('script', {}) 
+        script_path = script_config.get('path')
+        if not script_path:
+            raise ValueError("Script path is not configured. Please set the script path before trying to delete a script.")
+        
+        full_path = Path.from_uri(script_path) / script
+        if not full_path.exists():
+            raise ValueError(f"The specified script '{script}' does not exist in the configured script path.")
+        
+        if force_delete:
+            full_path.unlink()
+        else:
+            confirmation = input(f"Are you sure you want to delete the script '{script}'? This action cannot be undone. (yes/no): ")
+            if confirmation.lower() in ['yes', 'y']:
+                full_pat
+            else:
+                print("Script deletion cancelled.")
+        
+        print (f"Script '{script}' has been deleted.")
+
 class AsideTasks:
     
     @staticmethod
