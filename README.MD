@@ -2,7 +2,7 @@
 
 - **Version:** 2.0.0  
 - **Author:** [João Vítor Lira (Lirovsk)](https://github.com/Lirovsk)
-- **Last added:** Ability to create scripts and project with diferent extensions than the default.
+- **Last added:** Ability to create scripts and projects with diferrent extensions than the default.
 
 ---
 
