@@ -64,8 +64,7 @@ delete_parser.add_argument('--force', '-f', nargs='?', default=False, const=True
 
 args = parser.parse_args()
 
-for item in args.__dict__:
-    print(f"{item}: {args.__dict__[item]}")
+
 
 if args.command == 'config':
     config_manager.save_config(args)
