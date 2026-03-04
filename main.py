@@ -1,5 +1,5 @@
 import argparse
-from request_processor import config_manager, open_manager, search_manager, create_manager
+from request_processor import config_manager, open_manager, search_manager, create_manager, delete_manager
 
 parser = argparse.ArgumentParser(prog='file_manager',
                                   description='A simple file manager that allows you to perform basic file operations.',
@@ -57,7 +57,13 @@ search_parser.add_argument('search_area', help='The area to search in (e.g., pro
 search_parser.add_argument('search_name', nargs='?', default=None, help='The search query to find specific files or directories (e.g., filename or part of it)')
 search_parser.add_argument('--all', '-a', action='store_true', help='Search for all files and directories in the specified area', dest='search_all')
 
+delete_parser = subparsers.add_parser('delete', help='Delete files or directories based on the configured paths')
+delete_parser.add_argument('delete_area', help='The area to delete from (e.g., project, script)')
+delete_parser.add_argument('delete_name', help='The name of the file or directory to delete')
+delete_parser.add_argument('--force', '-f', nargs='?', default=False, const=True, help='Force delete without confirmation (use with caution)', dest='force_delete')
+
 args = parser.parse_args()
+
 
 
 if args.command == 'config':
@@ -68,3 +74,5 @@ if args.command == 'open':
     open_manager.open(args)
 if args.command == 'search':
     search_manager.search(args)
+if args.command == 'delete':
+    delete_manager.delete(args)
