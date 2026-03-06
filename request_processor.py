@@ -375,14 +375,22 @@ class create_manager:
                 file.write(f"# Main file for {project_name}\n\n# This is the main file for the project created using the file manager.")
                 
             inside_project = project_path / project_name
+            if to_git == 'default':
+                if project_config.get('git', True):
+                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
+                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
+            else:
+                if to_git:
+                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
+                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
 
-            if project_config.get('git', True):
-                subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
-                subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
-            
-            if project_config.get('open_files', True):
-                subprocess.run(['code', str(project_path / project_name)], shell=True)
-    
+            if to_open == 'default':
+                if project_config.get('open_files', True):
+                    subprocess.run(['code', str(project_path / project_name)], shell=True)
+            else:
+                if to_open:
+                    subprocess.run(['code', str(project_path / project_name)], shell=True)
+
     @staticmethod
     def create_script(script_name: str, extension_to_use: str, to_open: str|bool):
         """
