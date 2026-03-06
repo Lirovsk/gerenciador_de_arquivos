@@ -279,20 +279,21 @@ class create_manager:
     @staticmethod
     def create(args: dict):
         """
-        Create a new project or script based on the specified area.
+        Process creation requests based on the specified area.
+        Creates a project or script based on the 'create_area' argument.
+        Supports creation of projects with optional git initialization and file opening,
+        or scripts with optional file opening.
         Args:
-            args (dict): A dictionary containing the following keys:
-                - create_area (str): The type of item to create. Must be 'project' or 'script'.
-                - name (str): The name of the project or script to create.
-                - extension_to_use (str): The file extension to use for the created item.
-        Returns:
-            None
+            args (dict): A dictionary containing:
+                - create_area (str): The type of resource to create ('project' or 'script')
+                - name (str): The name of the resource to create
+                - extension_to_use (str): File extension for the created resource
+                - open_file (bool): Whether to open the created file
+                - open_git (bool): Whether to initialize git (only for projects)
         Raises:
             Prints an error message if create_area is not 'project' or 'script'.
-        Examples:
-            >>> create({'create_area': 'project', 'name': 'my_project', 'extension_to_use': '.py'})
-            >>> create({'create_area': 'script', 'name': 'my_script', 'extension_to_use': '.py'})
         """
+        
         
         match args.create_area:
             case 'project':
@@ -305,28 +306,33 @@ class create_manager:
     @staticmethod
     def create_project(project_name: str, extension_to_use: str, to_open: str|bool, to_git: str|bool):
         """
-        Create a new project directory with initial files and optional Git initialization.
-        This function creates a project folder at the configured project path with:
-        - A README.md file containing basic project information
-        - A main file with the specified extension
-        - Optional Git repository initialization
-        - Optional opening of the project in VS Code
+        Create a new project with a standard directory structure and optional git initialization.
+        This function creates a project directory at the configured project path, initializes it with
+        a README.md file and a main source file with the specified extension. It can optionally
+        initialize a git repository and open the project in VS Code.
         Args:
-            project_name (str): The name of the project to create. This will be used as the 
-                               directory name and in the generated file headers.
-            extension_to_use (str): The file extension for the main file. Use 'default' to 
-                                   use the extension from the project configuration, or specify 
-                                   a custom extension (e.g., '.py', '.js').
+            project_name (str): The name of the project to create. This will be used as the directory name.
+            extension_to_use (str): The file extension for the main source file. If set to 'default',
+                uses the extension configured in the project settings.
+            to_open (str|bool): Whether to open the project in VS Code. Can be:
+                - 'default': Uses the 'open_files' setting from project configuration
+                - True: Opens the project in VS Code
+                - False: Does not open the project
+            to_git (str|bool): Whether to initialize a git repository. Can be:
+                - 'default': Uses the 'git' setting from project configuration
+                - True: Initializes git and sets main branch to 'main'
+                - False: Does not initialize git
         Raises:
-            ValueError: If the project path is not configured in the config manager.
-        Notes:
-            - The function behavior differs slightly between Windows and Unix-like systems 
-              for the mkdir command (with/without shell=True flag).
-            - Git initialization and VS Code opening are controlled by the project 
-              configuration settings ('git' and 'open_files' keys).
-            - Requires git and code (VS Code CLI) to be available in the system PATH 
-              if those features are enabled.
+            ValueError: If the project path is not configured in the settings.
+        Returns:
+            None
+        Note:
+            - Creates README.md and main{extension} files automatically
+            - Git initialization is only performed on non-Windows systems or when explicitly enabled
+            - Requires 'code' command to be available for opening in VS Code
+            - Requires 'git' command to be available for git operations
         """
+        
         
         config = config_manager.retrieve_config()
         project_config = config.get('project', {})
@@ -381,22 +387,21 @@ class create_manager:
     def create_script(script_name: str, extension_to_use: str, to_open: str|bool):
         """
         Create a new script file with the specified name and extension.
-        This function retrieves the script configuration, creates a new script file
-        at the configured script path, and optionally opens it in VS Code.
         Args:
-            script_name (str): The name of the script to create (without extension).
-            extension_to_use (str): The file extension to use for the script. 
-                                   If 'default', uses the extension from config.
+            script_name (str): The name of the script to create.
+            extension_to_use (str): The file extension to use. Use 'default' to apply the 
+                                    extension from the configuration, or provide a custom extension.
+            to_open (str|bool): Determines whether to open the script in VS Code after creation.
+                               Use 'default' to follow the 'open_files' setting from configuration,
+                               or pass a boolean to explicitly control the behavior.
         Raises:
-            ValueError: If the script path is not configured in the config file.
+            ValueError: If the script path is not configured in the configuration file.
         Returns:
             None
-        Side Effects:
-            - Creates a new file at the configured script path.
-            - Initializes the file with a header comment.
-            - Opens the file in VS Code if 'open_files' is True in the configuration.
         Note:
-            The function works cross-platform (Windows and Unix-like systems).
+            - The script file is created in the directory specified in the configuration under 'script.path'.
+            - A template message is written to the newly created script file.
+            - If to_open is True or 'default' with 'open_files' enabled, the script opens in VS Code.
         """
         
         
