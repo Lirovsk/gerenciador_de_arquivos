@@ -6,7 +6,7 @@ parser = argparse.ArgumentParser(prog='file_manager',
                                   epilog='In case of any issues, please contact me at https://github.com/Lirovsk',
                                   usage='%(prog)s [options]')
 
-parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
+parser.add_argument('--version', action='version', version='%(prog)s 2.2.3')
 
 subparsers = parser.add_subparsers(dest='command', help='available commands', required=True,
                       )
@@ -50,10 +50,10 @@ create_parser = subparsers.add_parser('create', help='Create new files or direct
 create_parser.add_argument('create_area', help='The area to create in (e.g., project, script)')
 create_parser.add_argument('name', help='The name of the file or directory to create')
 create_parser.add_argument('--extension', '-e', nargs='?', default='default', help='The file extension to use when creating a file (optional, default is "default" which uses the configured extension for the area)', dest='extension_to_use'  )
-create_parser.add_argument('--no-open', '-no',nargs='?', const=False, default='default', dest='open_file', help='Supress the saved settings about open files after creation, if not used the value used will be the default')
-create_parser.add_argument('--open', '-o', nargs='?', const=True, default='default', dest='open_file', help='Supress the saved settings about open files after creation, if not used the value used will be the default')
-create_parser.add_argument('--no-git', '-ng', nargs='?', const=False, default='default', dest='open_git', help='Supress the value set about whyher open or not a git repository')
-create_parser.add_argument('--open-git', '-og', nargs='?', const=True, default='default', dest='open_git', help='Supress the value set about whyher open or not a git repository')
+create_parser.add_argument('--no-open', '-no',nargs='?', const=False, default='default', dest='open_file', help='Suppress the saved settings about open files after creation, if not used the value used will be the default')
+create_parser.add_argument('--open', '-o', nargs='?', const=True, default='default', dest='open_file', help='Suppress the saved settings about open files after creation, if not used the value used will be the default')
+create_parser.add_argument('--no-git', '-ng', nargs='?', const=False, default='default', dest='open_git', help='Suppress the value set about whether to open or not a git repository')
+create_parser.add_argument('--open-git', '-og', nargs='?', const=True, default='default', dest='open_git', help='Suppress the value set about whether to open or not a git repository')
 
 # search command
 search_parser = subparsers.add_parser('search', help='Search for files or directories based on the configured paths')
