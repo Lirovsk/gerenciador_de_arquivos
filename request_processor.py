@@ -296,14 +296,14 @@ class create_manager:
         
         match args.create_area:
             case 'project':
-                create_manager.create_project(args.name, args.extension_to_use)
+                create_manager.create_project(args.name, args.extension_to_use, args.open_file, args.open_git)
             case 'script':
                 create_manager.create_script(args.name, args.extension_to_use)
             case _:
                 print("Invalid create area.")
     
     @staticmethod
-    def create_project(project_name: str, extension_to_use: str):
+    def create_project(project_name: str, extension_to_use: str, to_open: str|bool, to_git: str|bool):
         """
         Create a new project directory with initial files and optional Git initialization.
         This function creates a project folder at the configured project path with:
@@ -344,12 +344,21 @@ class create_manager:
                 file.write(f"# Main file for {project_name}\n\n# This is the main file for the project created using the file manager.")
                 
             inside_project = project_path / project_name
-            if project_config.get('git', True):
-                subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
-                subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
+            if to_git == 'default':
+                if project_config.get('git', True):
+                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
+                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
+            else:
+                if to_git:
+                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
+                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
             
-            if project_config.get('open_files', True):
-                subprocess.run(['code', str(project_path / project_name)], shell=True)
+            if to_open == 'default':
+                if project_config.get('open_files', True):
+                    subprocess.run(['code', str(project_path / project_name)], shell=True)
+            else:
+                if to_open:
+                    subprocess.run(['code', str(project_path / project_name)], shell=True)
         
         else:
             subprocess.run(['mkdir', project_name], shell=True, cwd=project_path)
