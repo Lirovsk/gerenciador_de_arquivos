@@ -298,7 +298,7 @@ class create_manager:
             case 'project':
                 create_manager.create_project(args.name, args.extension_to_use, args.open_file, args.open_git)
             case 'script':
-                create_manager.create_script(args.name, args.extension_to_use)
+                create_manager.create_script(args.name, args.extension_to_use, args.open_file)
             case _:
                 print("Invalid create area.")
     
@@ -378,7 +378,7 @@ class create_manager:
                 subprocess.run(['code', str(project_path / project_name)], shell=True)
     
     @staticmethod
-    def create_script(script_name: str, extension_to_use: str):
+    def create_script(script_name: str, extension_to_use: str, to_open: str|bool):
         """
         Create a new script file with the specified name and extension.
         This function retrieves the script configuration, creates a new script file
@@ -415,8 +415,12 @@ class create_manager:
             with open(script_path / f'{script_name}{script_extension}', 'w') as file:
                 file.write(f"# Script file for {script_name}\n\n# This is the main file for the script created using the file manager.")
                 
-        if script_config.get('open_files', True):
-            subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
+        if to_open == 'default':        
+            if script_config.get('open_files', True):
+                subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
+        else:
+            if to_open:
+                subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
 
 class search_manager:
     @staticmethod
