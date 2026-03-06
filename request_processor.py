@@ -298,7 +298,7 @@ class create_manager:
             case 'project':
                 create_manager.create_project(args.name, args.extension_to_use, args.open_file, args.open_git)
             case 'script':
-                create_manager.create_script(args.name, args.extension_to_use)
+                create_manager.create_script(args.name, args.extension_to_use, args.open_file)
             case _:
                 print("Invalid create area.")
     
@@ -378,30 +378,27 @@ class create_manager:
                 subprocess.run(['code', str(project_path / project_name)], shell=True)
     
     @staticmethod
-    def create_script(script_name: str, extension_to_use: str):
+    def create_script(script_name: str, extension_to_use: str, to_open: str|bool):
         """
         Create a new script file with the specified name and extension.
-        This function creates a script file in the configured script directory.
-        The script file is initialized with a standard header comment. On non-Windows
-        systems, it also creates a directory for the script. If configured, the created
-        script file is automatically opened in the default code editor (VS Code).
+        This function retrieves the script configuration, creates a new script file
+        at the configured script path, and optionally opens it in VS Code.
         Args:
             script_name (str): The name of the script to create (without extension).
-            extension_to_use (str): The file extension to use for the script.
-                If set to 'default', uses the extension specified in the configuration.
-                Otherwise, uses the provided extension string.
+            extension_to_use (str): The file extension to use for the script. 
+                                   If 'default', uses the extension from config.
         Raises:
-            ValueError: If the script path is not configured in the configuration file.
+            ValueError: If the script path is not configured in the config file.
         Returns:
             None
+        Side Effects:
+            - Creates a new file at the configured script path.
+            - Initializes the file with a header comment.
+            - Opens the file in VS Code if 'open_files' is True in the configuration.
         Note:
-            - On Windows (os.name == 'nt'): Creates the script file directly.
-            - On other systems: Creates a directory with the script name, then creates
-              the script file inside it.
-            - The script file is populated with a standard header comment.
-            - If 'open_files' is enabled in the script configuration, the created
-              file is automatically opened in VS Code.
+            The function works cross-platform (Windows and Unix-like systems).
         """
+        
         
         config = config_manager.retrieve_config()
         script_config = config.get('script', {})
@@ -415,12 +412,15 @@ class create_manager:
             with open(script_path / f'{script_name}{script_extension}', 'w') as file:
                 file.write(f"# Script file for {script_name}\n\n# This is the main file for the script created using the file manager.")
         else:
-            subprocess.run(['mkdir', script_name], shell=True, cwd=script_path)
             with open(script_path / f'{script_name}{script_extension}', 'w') as file:
                 file.write(f"# Script file for {script_name}\n\n# This is the main file for the script created using the file manager.")
                 
-        if script_config.get('open_files', True):
-            subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
+        if to_open == 'default':        
+            if script_config.get('open_files', True):
+                subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
+        else:
+            if to_open:
+                subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
 
 class search_manager:
     @staticmethod
