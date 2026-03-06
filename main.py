@@ -6,7 +6,7 @@ parser = argparse.ArgumentParser(prog='file_manager',
                                   epilog='In case of any issues, please contact me at https://github.com/Lirovsk',
                                   usage='%(prog)s [options]')
 
-parser.add_argument('--version', action='version', version='%(prog)s 0.1.0')
+parser.add_argument('--version', action='version', version='%(prog)s 2.2.3')
 
 subparsers = parser.add_subparsers(dest='command', help='available commands', required=True,
                       )
