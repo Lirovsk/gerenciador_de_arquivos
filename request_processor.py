@@ -339,7 +339,7 @@ class create_manager:
         project_config = config.get('project', {})
         project_path = project_config.get('path')
         project_path = Path.from_uri(project_path)
-        project_extension = project_config.get('extension') if extension_to_use == 'default' else extension_to_use
+        project_extension = project_config.get('extension') if extension_to_use == 'default' else AsideTasks.normalize_extension(extension_to_use)
         if not project_path:
             raise ValueError("Project path is not configured. Please set the project path before trying to create a project.")
         if os.name == 'nt': # Windows
@@ -418,7 +418,7 @@ class create_manager:
         script_config = config.get('script', {})
         script_path = script_config.get('path')
         script_path = Path.from_uri(script_path)
-        script_extension = script_config.get('extension') if extension_to_use == 'default' else extension_to_use
+        script_extension = script_config.get('extension') if extension_to_use == 'default' else AsideTasks.normalize_extension(extension_to_use)
         if not script_path:
             raise ValueError("Script path is not configured. Please set the script path before trying to create a script.")
         
@@ -750,3 +750,20 @@ class AsideTasks:
             languages = data.get('languages', {})
             result = languages.get(name, None)
             return result
+        
+    
+    @staticmethod
+    def normalize_extension(extension):
+        """
+        Normalize a file extension to ensure it starts with a dot.
+        Args:
+            extension (str): The file extension to normalize.
+        Returns:
+            str: The normalized file extension, starting with a dot.
+        Note:
+            - If the input extension already starts with a dot, it is returned unchanged.
+            - If the input extension does not start with a dot, a dot is prepended.
+        """
+        if not extension.startswith('.'):
+            return '.' + extension
+        return extension
