@@ -6,6 +6,7 @@ import subprocess
 # CONSTANTS
 
 CONFIG_FILE = "file_manager_config.json"
+DATA_FILE = "file_manager_data.json"
 
 
 parser = argparse.ArgumentParser(prog="file_manager",

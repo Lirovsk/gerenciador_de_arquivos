@@ -1,0 +1,24 @@
+{
+    "languages": {
+        "JavaScript": ".js",
+        "Python": ".py",
+        "SQL": ".sql",
+        "TypeScript": ".ts",
+        "Bash": ".sh",
+        "Java": ".java",
+        "C#": ".cs",
+        "C++": ".cpp",
+        "C": ".c",
+        "PHP": ".php",
+        "Go": ".go",
+        "Rust": ".rs",
+        "Kotlin": ".kt",
+        "Lua": ".lua",
+        "Ruby": ".rb",
+        "Dart": ".dart",
+        "Swift": ".swift",
+        "R": ".R",
+        "Assembly": ".asm",
+        "PowerShell": ".ps1"
+    }
+}
