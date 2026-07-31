@@ -14,7 +14,8 @@ subparsers = parser.add_subparsers(dest='command', help='available commands', re
 config_parser = subparsers.add_parser('config', help='Configure paths and settings for different areas')
 
 sub_subparser1 = config_parser.add_subparsers(dest='config_action', help='actions to configure different areas')
-# project area
+
+# ==================== project area ====================
 set_projects_path = sub_subparser1.add_parser('set-project-path', help='Set the path for projects')
 set_projects_path.add_argument('value', help='The path value to set for projects')
 set_projects_path.add_argument('--absolute-path', '-ap', action='store_true', help='Indicates that the provided path is an absolute path', dest='absolute_path')
@@ -27,7 +28,7 @@ set_project_open = sub_subparser1.add_parser('set-project-open', help='Configure
 set_project_open.add_argument('config_to_set', help='The specific configuration to set for opening projects (e.g., git, open_files,open_git)')
 set_project_open.add_argument('value', help='The value to set for the specified configuration (e.g., true, false, .py)')
 
-# scripts area
+# ==================== scripts area ====================
 set_scripts_path = sub_subparser1.add_parser('set-script-path', help='Set the path for scripts')
 set_scripts_path.add_argument('value', help='The path value to set for scripts')
 set_scripts_path.add_argument('--absolute-path', '-ap', action='store_true', help='Indicates that the provided path is an absolute path', dest='absolute_path')
@@ -40,12 +41,12 @@ set_scripts_open.add_argument('value', help='The value to set for the specified 
 set_script_extension = sub_subparser1.add_parser('set-script-extension', help='Set the default file extension for scripts')
 set_script_extension.add_argument('value', help='The file extension to set for scripts (e.g., .py, .js)')
 
-# open configurations
+# ==================== open configurations ====================
 open_parser = subparsers.add_parser('open', help='Open files or directories based on the configured paths')
 open_parser.add_argument('open_area', help='The area to open (e.g., project, script)')
 open_parser.add_argument('file_to_open', help='Specific files to open within the area (optional)')
 
-# create command
+# ==================== create command ====================
 create_parser = subparsers.add_parser('create', help='Create new files or directories based on the configured paths')
 create_parser.add_argument('create_area', help='The area to create in (e.g., project, script)')
 create_parser.add_argument('name', help='The name of the file or directory to create')
@@ -55,7 +56,7 @@ create_parser.add_argument('--open', '-o', nargs='?', const=True, default='defau
 create_parser.add_argument('--no-git', '-ng', nargs='?', const=False, default='default', dest='open_git', help='Suppress the value set about whether to open or not a git repository')
 create_parser.add_argument('--open-git', '-og', nargs='?', const=True, default='default', dest='open_git', help='Suppress the value set about whether to open or not a git repository')
 
-# search command
+# ==================== search command ====================
 search_parser = subparsers.add_parser('search', help='Search for files or directories based on the configured paths')
 search_parser.add_argument('search_area', help='The area to search in (e.g., project, script)')
 search_parser.add_argument('search_name', nargs='?', default=None, help='The search query to find specific files or directories (e.g., filename or part of it)')
@@ -69,14 +70,19 @@ delete_parser.add_argument('--force', '-f', nargs='?', default=False, const=True
 args = parser.parse_args()
 
 
+# ==================== Command Handling ====================
+match args.command:
+    case 'config':
+        config_manager.save_config(args)
+    
+    case 'create':
+        create_manager.create(args)
+        
+    case 'open':
+        open_manager.open(args)
 
-if args.command == 'config':
-    config_manager.save_config(args)
-if args.command == 'create':
-    create_manager.create(args)
-if args.command == 'open':
-    open_manager.open(args)
-if args.command == 'search':
-    search_manager.search(args)
-if args.command == 'delete':
-    delete_manager.delete(args)
+    case 'search':
+        search_manager.search(args)
+
+    case 'delete':
+        delete_manager.delete(args)
