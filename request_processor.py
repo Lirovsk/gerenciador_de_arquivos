@@ -7,6 +7,7 @@ from functools import wraps
 import shutil
 
 CONFIG_FILE = "file_manager_config.json"
+DATA_FILE = "file_manager_data.json"
 
 def log_execution(func):
     @wraps(func)
@@ -273,7 +274,7 @@ class open_manager:
             subprocess.run(['code', full_path], shell=True)
         else:
             subprocess.run(['code', '', full_path], shell=True)
-            
+
 class create_manager:
     
     @staticmethod
@@ -548,7 +549,7 @@ class search_manager:
                 
             if found_items == []:
                 print(f"No items found matching '{search_name}' in the configured script path.")           
-    
+
 class delete_manager:
     @staticmethod
     def delete(args: dict):
@@ -647,10 +648,10 @@ class delete_manager:
                 print (f"Script '{script}' has been deleted.")
             else:
                 print("Script deletion cancelled.")
-        
+
 
 class AsideTasks:
-    
+
     @staticmethod
     def set_if_none(config_dict: dict, key: str, value: any):
         """
@@ -664,64 +665,62 @@ class AsideTasks:
         Note:
             Prints the updated dictionary to stdout if a new key-value pair is added.
         """
-        
+
         if key not in config_dict:
             config_dict[key] = value
             print(config_dict)
-            
+
     @staticmethod
     def create_config_if_none(config:dict, config_area: str):
-        def create_config_if_none(config: dict, config_area: str):
-            """
-            Ensure a configuration area exists in the config dictionary.
-            Creates an empty dictionary for the specified config_area key if it does not
-            already exist in the config dictionary.
-            Args:
-                config (dict): The configuration dictionary to modify.
-                config_area (str): The key/section name to ensure exists in the config.
-            Returns:
-                dict: The modified config dictionary with the config_area initialized if needed.
-            """
-        
+        """
+        Ensure a configuration area exists in the config dictionary.
+        Creates an empty dictionary for the specified config_area key if it does not
+        already exist in the config dictionary.
+        Args:
+            config (dict): The configuration dictionary to modify.
+            config_area (str): The key/section name to ensure exists in the config.
+        Returns:
+            dict: The modified config dictionary with the config_area initialized if needed.
+        """
+
         if config_area not in config:
             config[config_area] = {}
         return config
-    
+
     @staticmethod
     def normalize_path(path_value: str, absolute_path: bool):
-        def normalize_path(path_value: str, absolute_path: bool) -> tuple[str, Path]:
-            """
-            Normalize a file path to a standardized URI format with validation.
-            This function converts a given path string into a normalized URI representation
-            and returns both the URI and a Path object for further validation or processing.
-            Args:
-                path_value (str): The path to normalize. Can be either an absolute path
-                    (with drive letter on Windows) or a relative path.
+
+        """
+        Normalize a file path to a standardized URI format with validation.
+        This function converts a given path string into a normalized URI representation
+        and returns both the URI and a Path object for further validation or processing.
+        Args:
+            path_value (str): The path to normalize. Can be either an absolute path
+                (with drive letter on Windows) or a relative path.
                 absolute_path (bool): If True, treats path_value as an absolute path.
-                    If False, treats it as a relative path and prepends the current
-                    working directory.
-            Returns:
-                tuple[str, Path]: A tuple containing:
-                    - full_path (str): The normalized path as a URI string.
-                    - path_check (Path): A Path object representing the full path
-                        for validation purposes.
-            Raises:
-                ValueError: On Windows systems, if absolute_path is True and the
-                    path_value does not include a drive letter (e.g., 'C:').
-            Note:
-                - On Windows, absolute paths must include a drive letter.
-                - On non-Windows systems, relative paths are automatically prefixed
-                    with '/' if not already present.
-                - The function uses the current working directory as the base for
-                    relative paths.
-            """
-        
-        
+                If False, treats it as a relative path and prepends the current
+                working directory.
+        Returns:
+            tuple[str, Path]: A tuple containing:
+                - full_path (str): The normalized path as a URI string.
+                - path_check (Path): A Path object representing the full path
+                    for validation purposes.
+        Raises:
+            ValueError: On Windows systems, if absolute_path is True and the
+                path_value does not include a drive letter (e.g., 'C:').
+        Note:
+            - On Windows, absolute paths must include a drive letter.
+            - On non-Windows systems, relative paths are automatically prefixed
+                with '/' if not already present.
+            - The function uses the current working directory as the base for
+                relative paths.
+        """
+
         if absolute_path:
             if os.name == 'nt': # Windows
                 if path_value[1] != ':':
                     raise ValueError("On Windows, an absolute path must include a drive letter (e.g., C:). Please provide a valid absolute path.")
-                
+
                 full_path = WindowsPath(path_value)
                 path_check = full_path
                 full_path = full_path.as_uri()
@@ -733,4 +732,21 @@ class AsideTasks:
                 full_path = Path.cwd().as_uri() + path_value
                 path_check = Path.from_uri(full_path)
         return full_path, path_check
-        
+    
+    
+    @staticmethod
+    def search_for_extension(extension):
+        with open(DATA_FILE, 'r') as data_file:
+            data = json.load(data_file)
+            languages = data.get('languages', {})
+            result = next((lang for lang in languages if languages[lang] == extension), None)
+            return result
+
+
+    @staticmethod
+    def search_for_name(name):
+        with open(DATA_FILE, 'r') as data_file:
+            data = json.load(data_file)
+            languages = data.get('languages', {})
+            result = languages.get(name, None)
+            return result
