@@ -1,2 +1,3 @@
 *.pyc
 test*.py
+file_manager_config.json
