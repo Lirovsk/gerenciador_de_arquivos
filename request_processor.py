@@ -35,158 +35,63 @@ class config_manager:
     
     @log_execution
     @staticmethod
-    def set_config(config:dict):
+    def set_config_dict(config:dict, ident_value: int):
         with open(CONFIG_FILE, 'w') as file:
-            json.dump(config, file, indent=4)
+            json.dump(config, file, indent=ident_value)
+    
+    @log_execution
+    @staticmethod
+    def set_config(config_name:str, config_value:any, ident_value:int):
+        config = config_manager.retrieve_config()
+        config[config_name] = config_value
+        with open(CONFIG_FILE, 'w') as file:
+            json.dump(config, file, indent=ident_value)
     
     @staticmethod
     def save_config(args: dict):
-        """
-        Save configuration settings based on the specified action.
-        This function processes various configuration actions for project and script settings,
-        including paths, extensions, and open status flags. It retrieves the current configuration,
-        updates it with the provided values, and persists the changes.
-        Args:
-            args (dict): A dictionary containing configuration parameters with the following keys:
-                - config_action (str): The action to perform. Supported values:
-                    - 'set-project-path': Set the project directory path
-                    - 'set-project-extension': Set the file extension filter for projects
-                    - 'set-project-open': Set whether the project should be opened (boolean string)
-                    - 'set-script-path': Set the script directory path
-                    - 'set-script-open': Set whether the script should be opened (boolean string)
-                    - 'set-script-extension': Set the file extension filter for scripts
-                - value (str): The value to set for the configuration
-                - config_to_set (str): The specific config key to update (used for open flags)
-        Returns:
-            None
-        Raises:
-            Prints "Invalid config action." message if an unsupported config_action is provided.
-        Note:
-            Boolean string values ('true'/'false') are converted to Python boolean types
-            for open status configurations.
-        """
-        
         match args.config_action:
-            case 'set-project-path':
-                config_manager.save_project_config(args)    
-                
+            case "set-path":
+                config_manager.set_path(args)
             
-            case 'set-project-extension':
-                config = config_manager.retrieve_config()
-                config = AsideTasks.create_config_if_none(config, 'project')
-                config['project']['extension'] = args.value
-                config_manager.set_config(config)
-                    
+            case "set-project-open":
                 pass
             
-            case 'set-project-open':
-                config = config_manager.retrieve_config()
-                config = AsideTasks.create_config_if_none(config, 'project')
-                if args.value.lower() == 'true':
-                    args.value = True
-                else:
-                    args.value = False
-                config['project'][args.config_to_set] = args.value
-                config_manager.set_config(config)
+            case "set-project-extension":
+                pass
             
-            case 'set-script-path':
-                config_manager.save_script_config(args)
+            case "set-script-open":
+                pass
             
-            case 'set-script-open':
-                config = config_manager.retrieve_config()
-                config = AsideTasks.create_config_if_none(config, 'script')
-                if args.value.lower() == 'true':
-                    args.value = True
-                else:
-                    args.value = False
-                config['script'][args.config_to_set] = args.value
-                config_manager.set_config(config)
+            case "set-script-open":
+                pass
             
-            case 'set-script-extension':
-                config = config_manager.retrieve_config()
-                config = AsideTasks.create_config_if_none(config, 'script')
-                config['script']['extension'] = args.value
-                config_manager.set_config(config)
-            
-            case _:
-                print("Invalid config action.")
-        pass
     
     @staticmethod
-    def save_project_config(args: dict):
-        """
-        Save and initialize project configuration settings.
-        Saves the project path to the configuration manager and initializes default
-        project settings if they are not already set (git support, open files tracking,
-        and file extension filter).
-        Args:
-            args (dict): A dictionary containing:
-                - value (str): The project path value to save
-                - absolute_path (str): The absolute path of the project
-        Returns:
-            None
-        Side Effects:
-            - Saves the project path to the configuration manager
-            - Initializes 'git', 'open_files', and 'extension' settings if not present
-            - Updates the configuration manager with the modified config
-        """
+    def set_path(args: dict):
+        path_value = args.value
+        absolute_path = args.absolute_path
         
-        config_manager.save_path('project', 'path', args.value, args.absolute_path)
-                
-        config = config_manager.retrieve_config()
-                
-        AsideTasks.set_if_none(config['project'], 'git', True)
-        AsideTasks.set_if_none(config['project'], 'open_files', True)
-        AsideTasks.set_if_none(config['project'], 'extension', '.py')                
-        config_manager.set_config(config)
+        path_uri, path_object = AsideTasks.normalize_path(path_value=path_value, absolute_path=absolute_path)
         
-    @staticmethod
-    def save_script_config(args: dict): 
-        """
-        Save the script configuration with the provided arguments.
-        This function updates the script configuration by setting the script path,
-        and ensures default values are set for 'open_files' and 'extension' options.
-        Args:
-            args (dict): A dictionary containing:
-                - value (str): The script path value to be saved.
-                - absolute_path (str): The absolute path of the script.
-        Returns:
-            None
-        Side Effects:
-            - Saves the script path to the configuration manager.
-            - Retrieves the current configuration.
-            - Sets 'open_files' to True if not already defined in script config.
-            - Sets 'extension' to '.py' if not already defined in script config.
-            - Updates the configuration manager with the modified config.
-        """
-         
-        config_manager.save_path('script', 'path', args.value, args.absolute_path)
-                
-        config = config_manager.retrieve_config()
-                
-        AsideTasks.set_if_none(config['script'], 'open_files', True)
-        AsideTasks.set_if_none(config['script'], 'extension', '.py')
-                
-        config_manager.set_config(config)
         
+        if not path_object.exists():
+            TEXT= f"The provided path '{path_value}' does not exist. \n \nDo you want to create it? (yes/no): "
+            answer = input(TEXT)
+            match answer.lower():
+                case "yes" | "y":
+                    path_object.mkdir(parents=True)
+                
+                case "no" | "n":
+                    print("Path creation cancelled. Please provide a valid path.")
+                    return
+                
+                case _:
+                    print("Invalid answer, please answer with 'yes' or 'no'.")
+                    return
+            
+        config_manager.set_config(config_name='path', config_value=path_uri, ident_value=4)
+            
     
-
-    @staticmethod
-    def save_path(config_area: str, config_to_set: str, path_value: str, absolute_path: bool):
-        
-        full_path, path_check = AsideTasks.normalize_path(path_value, absolute_path)
-        
-        if not path_check.is_dir():
-            raise ValueError("The path you entered is not a valid directory. Please enter a valid directory.")
-        
-        config = config_manager.retrieve_config()
-        if config_area not in config:
-            config[config_area] = {}
-        
-        config[config_area][config_to_set] = full_path
-        
-        config_manager.set_config(config)
-
 
 class open_manager:
     
@@ -721,10 +626,9 @@ class AsideTasks:
                 if path_value[1] != ':':
                     raise ValueError("On Windows, an absolute path must include a drive letter (e.g., C:). Please provide a valid absolute path.")
 
-                full_path = WindowsPath(path_value)
-                path_check = full_path
-                full_path = full_path.as_uri()
-            print(full_path)
+                path_objet = Path(path_value)
+                path_check = path_objet
+                full_path = path_objet.as_uri()
         else :
             if path_value[0] != '/':
                 path_value = '/' + path_value
