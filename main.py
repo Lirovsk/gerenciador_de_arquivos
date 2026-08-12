@@ -16,7 +16,8 @@ sub_subparser1 = config_parser.add_subparsers(dest='config_action', help='action
 
 set_path = sub_subparser1.add_parser('set-path', help='Set the main directory used by the program')
 set_path.add_argument('value', help='The path valeu to set')
-set_path.add_argument('--absolute-path', '-ap', action='store_true', help='Indicates that the provided path is an absolute path', dest='absolute_path')
+set_path.add_argument('--absolute-path', '-ap', action='store_true', help='Indicates that the provided path is an absolute path', 
+                      dest='absolute_path', default=True)
 set_path.add_argument('--relative-path', '-rp', action='store_false', help='Indicates that the provided path is a relative path', dest='absolute_path')
 
 # ==================== projects area ====================
