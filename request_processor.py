@@ -61,7 +61,7 @@ class config_manager:
                 config_manager.set_project_open(args)
             
             case "set-project-extension":
-                pass
+                config_manager.set_project_extension(args)
             
             case "set-script-open":
                 pass
@@ -108,6 +108,11 @@ class config_manager:
         config_manager.set_nested_config(area_name='project', config_name=config_to_set, config_value=value_to_set)
             
 
+    @staticmethod
+    def set_project_extension(args: dict):
+        extension_value = AsideTasks.normalize_extension(extension=args.value)
+        
+        config_manager.set_nested_config(area_name='project', config_name='default_extension', config_value=extension_value)
 
 class open_manager:
     
