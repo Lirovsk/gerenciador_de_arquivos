@@ -35,9 +35,13 @@ class config_manager:
     
     @log_execution
     @staticmethod
-    def set_config_dict(config:dict, ident_value: int):
+    def set_nested_config(area_name:str, config_name:str, config_value:any):
+        config = config_manager.retrieve_config()
+        if area_name not in config:
+            config[area_name] = {}
+        config[area_name][config_name] = config_value
         with open(CONFIG_FILE, 'w') as file:
-            json.dump(config, file, indent=ident_value)
+            json.dump(config, file, indent=4)
     
     @log_execution
     @staticmethod
@@ -54,7 +58,7 @@ class config_manager:
                 config_manager.set_path(args)
             
             case "set-project-open":
-                pass
+                config_manager.set_project_open(args)
             
             case "set-project-extension":
                 pass
@@ -90,6 +94,14 @@ class config_manager:
                     return
             
         config_manager.set_config(config_name='path', config_value=path_uri, ident_value=4)
+        
+    
+    @staticmethod
+    def set_project_open(args: dict):
+        config_to_set = args.config_to_set
+        value_to_set = args.value_to_set
+        
+        config_manager.set_nested_config(area_name='project', config_name=config_to_set, config_value=value_to_set)
             
     
 
