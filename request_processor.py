@@ -98,12 +98,16 @@ class config_manager:
     
     @staticmethod
     def set_project_open(args: dict):
-        config_to_set = args.config_to_set
+        if args.config_to_set == 'files':
+            config_to_set = 'open_files'
+        else:
+            config_to_set = 'open_git'
+        
         value_to_set = args.value_to_set
         
         config_manager.set_nested_config(area_name='project', config_name=config_to_set, config_value=value_to_set)
             
-    
+
 
 class open_manager:
     
