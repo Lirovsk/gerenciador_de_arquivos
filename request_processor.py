@@ -64,10 +64,10 @@ class config_manager:
                 config_manager.set_project_extension(args)
             
             case "set-script-open":
-                pass
+                config_manager.set_script_open(args)
             
-            case "set-script-open":
-                pass
+            case "set-script-extension":
+                config_manager.set_script_extension(args)
             
     
     @staticmethod
@@ -79,7 +79,7 @@ class config_manager:
         
         
         if not path_object.exists():
-            TEXT= f"The provided path '{path_value}' does not exist. \n \nDo you want to create it? (yes/no): "
+            TEXT= f"The provided path '{path_uri}' does not exist. \n \nDo you want to create it? (yes/no): "
             answer = input(TEXT)
             match answer.lower():
                 case "yes" | "y":
@@ -113,6 +113,22 @@ class config_manager:
         extension_value = AsideTasks.normalize_extension(extension=args.value)
         
         config_manager.set_nested_config(area_name='project', config_name='default_extension', config_value=extension_value)
+
+
+    @staticmethod
+    def set_script_open(args:dict):
+        config_to_set = 'open_files'
+        value_to_set = args.value_to_set
+        
+        config_manager.set_nested_config(area_name='script', config_name=config_to_set, config_value=value_to_set)
+        
+        
+    @staticmethod
+    def set_script_extension(args:dict):
+        extension_value = AsideTasks.normalize_extension(extension=args.value)
+        
+        config_manager.set_nested_config(area_name='script', config_name='default_extension', config_value=extension_value)
+        
 
 class open_manager:
     
