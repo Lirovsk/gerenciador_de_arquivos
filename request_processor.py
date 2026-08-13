@@ -222,161 +222,49 @@ class create_manager:
     @staticmethod
     def create(args: dict):
         """
-        Process creation requests based on the specified area.
-        Creates a project or script based on the 'create_area' argument.
-        Supports creation of projects with optional git initialization and file opening,
-        or scripts with optional file opening.
-        Args:
-            args (dict): A dictionary containing:
-                - create_area (str): The type of resource to create ('project' or 'script')
-                - name (str): The name of the resource to create
-                - extension_to_use (str): File extension for the created resource
-                - open_file (bool): Whether to open the created file
-                - open_git (bool): Whether to initialize git (only for projects)
-        Raises:
-            Prints an error message if create_area is not 'project' or 'script'.
+        Manages the creation of new projects, scripts, or folders based on the specified area.
         """
-        
-        
         match args.create_area:
+            case 'folder':
+                create_manager.creator_of_folder(args)
+            
             case 'project':
-                create_manager.create_project(args.name, args.extension_to_use, args.open_file, args.open_git)
+                pass
+            
             case 'script':
-                create_manager.create_script(args.name, args.extension_to_use, args.open_file)
-            case _:
-                print("Invalid create area.")
+                pass
+    
     
     @staticmethod
-    def create_project(project_name: str, extension_to_use: str, to_open: str|bool, to_git: str|bool):
-        """
-        Create a new project with a standard directory structure and optional git initialization.
-        This function creates a project directory at the configured project path, initializes it with
-        a README.md file and a main source file with the specified extension. It can optionally
-        initialize a git repository and open the project in VS Code.
-        Args:
-            project_name (str): The name of the project to create. This will be used as the directory name.
-            extension_to_use (str): The file extension for the main source file. If set to 'default',
-                uses the extension configured in the project settings.
-            to_open (str|bool): Whether to open the project in VS Code. Can be:
-                - 'default': Uses the 'open_files' setting from project configuration
-                - True: Opens the project in VS Code
-                - False: Does not open the project
-            to_git (str|bool): Whether to initialize a git repository. Can be:
-                - 'default': Uses the 'git' setting from project configuration
-                - True: Initializes git and sets main branch to 'main'
-                - False: Does not initialize git
-        Raises:
-            ValueError: If the project path is not configured in the settings.
-        Returns:
-            None
-        Note:
-            - Creates README.md and main{extension} files automatically
-            - Git initialization is only performed on non-Windows systems or when explicitly enabled
-            - Requires 'code' command to be available for opening in VS Code
-            - Requires 'git' command to be available for git operations
-        """
+    def creator_of_folder(args: dict):
+        name = args.create_name
         
-        
-        config = config_manager.retrieve_config()
-        project_config = config.get('project', {})
-        project_path = project_config.get('path')
-        project_path = Path.from_uri(project_path)
-        project_extension = project_config.get('extension') if extension_to_use == 'default' else AsideTasks.normalize_extension(extension_to_use)
-        if not project_path:
-            raise ValueError("Project path is not configured. Please set the project path before trying to create a project.")
-        if os.name == 'nt': # Windows
-            subprocess.run(['mkdir', str(project_name)], shell=True, cwd=project_path)
-            with open(project_path / project_name / 'README.md', 'w') as file:
-                file.write(f"# {project_name}\n\nProject created using the file manager.")
-            
-            with open(project_path / project_name / f'main{project_extension}', 'w') as file:
-                file.write(f"# Main file for {project_name}\n\n# This is the main file for the project created using the file manager.")
-                
-            inside_project = project_path / project_name
-            if to_git == 'default':
-                if project_config.get('git', True):
-                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
-                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
-            else:
-                if to_git:
-                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
-                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
-            
-            if to_open == 'default':
-                if project_config.get('open_files', True):
-                    subprocess.run(['code', str(project_path / project_name)], shell=True)
-            else:
-                if to_open:
-                    subprocess.run(['code', str(project_path / project_name)], shell=True)
+        result = AsideTasks.search_for_name_by_name(name)
+        if result:
+            create_manager.create_folder(name)
         
         else:
-            subprocess.run(['mkdir', project_name], shell=True, cwd=project_path)
-            with open(project_path / project_name / 'README.md', 'w') as file:
-                file.write(f"# {project_name}\n\nProject created using the file manager.")
-            
-            with open(project_path / project_name / f'main{project_extension}', 'w') as file:
-                file.write(f"# Main file for {project_name}\n\n# This is the main file for the project created using the file manager.")
-                
-            inside_project = project_path / project_name
-            if to_git == 'default':
-                if project_config.get('git', True):
-                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
-                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
-            else:
-                if to_git:
-                    subprocess.run(['git', 'init'], shell=True, cwd=inside_project)
-                    subprocess.run(['git', 'branch', '-M', 'main'], shell=True, cwd=inside_project)
-
-            if to_open == 'default':
-                if project_config.get('open_files', True):
-                    subprocess.run(['code', str(project_path / project_name)], shell=True)
-            else:
-                if to_open:
-                    subprocess.run(['code', str(project_path / project_name)], shell=True)
-
+            create_manager.create_folder("others")
+        
+    
     @staticmethod
-    def create_script(script_name: str, extension_to_use: str, to_open: str|bool):
-        """
-        Create a new script file with the specified name and extension.
-        Args:
-            script_name (str): The name of the script to create.
-            extension_to_use (str): The file extension to use. Use 'default' to apply the 
-                                    extension from the configuration, or provide a custom extension.
-            to_open (str|bool): Determines whether to open the script in VS Code after creation.
-                               Use 'default' to follow the 'open_files' setting from configuration,
-                               or pass a boolean to explicitly control the behavior.
-        Raises:
-            ValueError: If the script path is not configured in the configuration file.
-        Returns:
-            None
-        Note:
-            - The script file is created in the directory specified in the configuration under 'script.path'.
-            - A template message is written to the newly created script file.
-            - If to_open is True or 'default' with 'open_files' enabled, the script opens in VS Code.
-        """
+    def create_folder(name: str):
+        configs = config_manager.retrieve_config()
+        path = configs.get('path', None)
+        if not path:
+            print("Path is not configured. Please set the path before trying to create a folder.")
+            return
+
+        # Create the folder
+        path_usable = Path.from_uri(path)
+        folder_path = path_usable / name
+        projects_path = folder_path / "projects"
+        scripts_path = folder_path / "scripts"
         
+        folder_path.mkdir(parents=False, exist_ok=True)
+        projects_path.mkdir(parents=False, exist_ok=True)
+        scripts_path.mkdir(parents=False, exist_ok=True)
         
-        config = config_manager.retrieve_config()
-        script_config = config.get('script', {})
-        script_path = script_config.get('path')
-        script_path = Path.from_uri(script_path)
-        script_extension = script_config.get('extension') if extension_to_use == 'default' else AsideTasks.normalize_extension(extension_to_use)
-        if not script_path:
-            raise ValueError("Script path is not configured. Please set the script path before trying to create a script.")
-        
-        if os.name == 'nt': # Windows
-            with open(script_path / f'{script_name}{script_extension}', 'w') as file:
-                file.write(f"# Script file for {script_name}\n\n# This is the main file for the script created using the file manager.")
-        else:
-            with open(script_path / f'{script_name}{script_extension}', 'w') as file:
-                file.write(f"# Script file for {script_name}\n\n# This is the main file for the script created using the file manager.")
-                
-        if to_open == 'default':        
-            if script_config.get('open_files', True):
-                subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
-        else:
-            if to_open:
-                subprocess.run(['code', str(script_path / f'{script_name}{script_extension}')], shell=True)
 
 class search_manager:
     @staticmethod
@@ -678,6 +566,7 @@ class AsideTasks:
     @staticmethod
     def search_for_extension(extension):
         with open(DATA_FILE, 'r') as data_file:
+            """Returns the programming language associated with a given file extension from a JSON data file."""
             data = json.load(data_file)
             languages = data.get('languages', {})
             result = next((lang for lang in languages if languages[lang] == extension), None)
@@ -687,9 +576,20 @@ class AsideTasks:
     @staticmethod
     def search_for_name(name):
         with open(DATA_FILE, 'r') as data_file:
+            """Returns the file extension associated with a given programming language name from a JSON data file."""
             data = json.load(data_file)
             languages = data.get('languages', {})
             result = languages.get(name, None)
+            return result
+        
+    
+    @staticmethod
+    def search_for_name_by_name(name):
+        with open(DATA_FILE, 'r') as data_file:
+            """Returns the programming language name associated with a given programming language name from a JSON data file."""
+            data = json.load(data_file)
+            languages = data.get('languages', {})
+            result = next((lang for lang in languages if lang.lower() == name.lower()), None)
             return result
         
     

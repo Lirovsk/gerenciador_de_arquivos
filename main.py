@@ -64,13 +64,15 @@ open_parser.add_argument('file_to_open', help='Specific files to open within the
 
 # ==================== create command ====================
 create_parser = subparsers.add_parser('create', help='Create new files or directories based on the configured paths')
-create_parser.add_argument('create_area', help='The area to create in (e.g., project, script)')
-create_parser.add_argument('name', help='The name of the file or directory to create')
-create_parser.add_argument('--extension', '-e', nargs='?', default='default', help='The file extension to use when creating a file (optional, default is "default" which uses the configured extension for the area)', dest='extension_to_use'  )
-create_parser.add_argument('--no-open', '-no',nargs='?', const=False, default='default', dest='open_file', help='Suppress the saved settings about open files after creation, if not used the value used will be the default')
-create_parser.add_argument('--open', '-o', nargs='?', const=True, default='default', dest='open_file', help='Suppress the saved settings about open files after creation, if not used the value used will be the default')
-create_parser.add_argument('--no-git', '-ng', nargs='?', const=False, default='default', dest='open_git', help='Suppress the value set about whether to open or not a git repository')
-create_parser.add_argument('--open-git', '-og', nargs='?', const=True, default='default', dest='open_git', help='Suppress the value set about whether to open or not a git repository')
+create_parser.add_argument('create_area', help='The area to create in (e.g., project, script, folder)',
+                           choices=['project', 'script', 'folder'])
+create_parser.add_argument('create_name', help='The name of the file, directory, or folder to create')
+create_parser.add_argument('--extension', '-e', help='The file extension to use when creating a file (optional)', 
+                           dest='file_extension', default=None)
+create_parser.add_argument('--open-git', '-og', action='store_true', help='Open the created project in Git (if applicable)',
+                           dest='open_git', default=None)
+create_parser.add_argument('--open-files', '-of', action='store_true', help='Open the created files (if applicable)',
+                           dest='open_files', default=None)
 
 # ==================== search command ====================
 search_parser = subparsers.add_parser('search', help='Search for files or directories based on the configured paths')
