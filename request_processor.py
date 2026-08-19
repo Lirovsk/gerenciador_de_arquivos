@@ -179,14 +179,11 @@ class create_manager:
             return
 
         # Create the folder
-        path_usable = Path.from_uri(path)
-        folder_path = path_usable / name
-        projects_path = folder_path / "projects"
-        scripts_path = folder_path / "scripts"
+        path_ = Path.from_uri(path)
+        directory_list = AsideTasks.directory_definer(name=name, path=path_)
         
-        folder_path.mkdir(parents=False, exist_ok=True)
-        projects_path.mkdir(parents=False, exist_ok=True)
-        scripts_path.mkdir(parents=False, exist_ok=True)
+        for path in directory_list:
+            path.mkdir(exist_ok=True, parents=True)
 
 
 class search_manager:
@@ -478,6 +475,14 @@ class AsideTasks:
                 full_path = Path.cwd().as_uri() + path_value
                 path_check = Path.from_uri(full_path)
         return full_path, path_check
+    
+    
+    @staticmethod
+    def directory_definer(name: str, path: Path):
+        projects_path = path / name / "projects"
+        scripts_path = path / name / "scripts" 
+        
+        return [projects_path, scripts_path]
 
     @staticmethod
     def search_for_extension(extension):
