@@ -203,102 +203,20 @@ class search_manager:
         match args.search_area:
             case 'project':
                 search_manager.search_project(args.search_name, args.search_all)
+            
             case 'script':
                 search_manager.search_script(args.search_name, args.search_all)
+            
             case _:
                 print("Invalid search area.")
     
     @staticmethod
     def search_project(search_name: str, search_all: bool):
-        """
-        Search for projects or items in the configured project directory.
-        Args:
-            search_name (str): The name or partial name of the project/item to search for.
-                              Ignored if search_all is True.
-            search_all (bool): If True, displays all items in the project directory.
-                              If False, searches for items matching search_name.
-        Raises:
-            ValueError: If the project path is not configured in the config file.
-            ValueError: If the configured project path does not exist.
-        Returns:
-            None: Prints the names of found items to stdout.
-        Note:
-            - When search_all is True, all items in the project directory are listed.
-            - When search_all is False, only items containing search_name are listed.
-            - If no items match the search criteria, a message is printed to inform the user.
-        """
-        
-        config = AsideTasks.retrieve_config()
-        project_config = config.get('project', {})
-        project_path = project_config.get('path')
-        if not project_path:
-            raise ValueError("Project path is not configured. Please set the project path before trying to search for a project.")
-        
-        full_path = Path.from_uri(project_path)
-        if not full_path.exists():
-            raise ValueError("The configured project path does not exist. Please check the project path configuration.")
-        
-        if search_all:
-            items = list(full_path.iterdir())
-            for item in items:
-                item_tuple = item.parts
-                print(item_tuple[-1])
-                            
-        else:
-            found_items = [item for item in list(full_path.iterdir()) if search_name in item.name]
-            for items in found_items:
-                item_tuple = items.parts
-                print(item_tuple[-1])
-                
-            if found_items == []:
-                print(f"No items found matching '{search_name}' in the configured project path.")
+        pass
     
     @staticmethod
     def search_script(search_name: str, search_all: bool):
-        """
-        Search for scripts in the configured script directory.
-        This function searches for script files in the path specified in the configuration.
-        It can either list all scripts or search for scripts matching a specific name.
-        Args:
-            search_name (str): The name or partial name of the script to search for.
-                              Ignored if search_all is True.
-            search_all (bool): If True, lists all scripts in the configured directory.
-                              If False, searches for scripts matching search_name.
-        Raises:
-            ValueError: If the script path is not configured in the configuration file.
-            ValueError: If the configured script path does not exist.
-        Returns:
-            None: Prints the names of found scripts to the console.
-        Note:
-            - If search_all is False and no items are found matching search_name,
-              a message is printed to inform the user.
-            - Only the last part of the file path (filename) is printed.
-        """
-        
-        config = AsideTasks.retrieve_config()
-        script_config = config.get('script', {})
-        script_path = script_config.get('path')
-        if not script_path:
-            raise ValueError("Script path is not configured. Please set the script path before trying to search for a script.")
-        
-        full_path = Path.from_uri(script_path)
-        if not full_path.exists():
-            raise ValueError("The configured script path does not exist. Please check the script path configuration.")
-        
-        if search_all:
-            items = list(full_path.iterdir())
-            for item in items:
-                item_tuple = item.parts
-                print(item_tuple[-1])
-                
-        else:
-            found_items = [item for item in list(full_path.iterdir()) if search_name in item.name]
-            for items in found_items:
-                item_tuple = items.parts
-                print(item_tuple[-1])
-                
-            if found_items == []:
-                print(f"No items found matching '{search_name}' in the configured script path.")           
+        pass           
 
 class delete_manager:
     @staticmethod
