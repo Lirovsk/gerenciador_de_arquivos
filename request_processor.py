@@ -234,88 +234,25 @@ class delete_manager:
             None
         """
         
-        if args.delete_area == 'project':
-            delete_manager.delete_project(args.delete_name, args.force_delete)
-        elif args.delete_area == 'script':
-            delete_manager.delete_script(args.delete_name, args.force_delete)
-        else:
-            print("Invalid delete area.")
+        match args.delete_area:
+            case 'project':
+                delete_manager.delete_project(args.delete_name, args.force_delete)
+            
+            case 'script':
+                delete_manager.delete_script(args.delete_name, args.force_delete)
+            
+            case _:
+                print("Invalid delete area.")
+                
             
     @staticmethod
     def delete_project(project: str, force_delete: bool):
-        """
-        Delete a project directory from the configured project path.
-        Args:
-            project (str): The name of the project to delete.
-            force_delete (bool): If True, delete the project without confirmation.
-                                If False, prompt the user for confirmation before deletion.
-        Raises:
-            ValueError: If the project path is not configured in the config file.
-            ValueError: If the specified project does not exist in the configured project path.
-        Returns:
-            None
-        Notes:
-            - If force_delete is False, the user will be prompted to confirm the deletion.
-            - User can confirm with 'yes' or 'y' (case-insensitive).
-            - This action cannot be undone as the entire project directory will be removed.
-            - Prints a success message upon successful deletion.
-            - Prints a cancellation message if the user declines the confirmation prompt.
-        """
-        
-        config = AsideTasks.retrieve_config()
-        project_config = config.get('project', {})
-        project_path = project_config.get('path')
-        if not project_path:
-            raise ValueError("Project path is not configured. Please set the project path before trying to delete a project.")
-        full_path = Path.from_uri(project_path) / project
-        if not full_path.exists():
-            raise ValueError(f"The specified project '{project}' does not exist in the configured project path.")
-        
-        if force_delete:
-            shutil.rmtree(full_path)
-        else:
-                confirmation = input(f"Are you sure you want to delete the project '{project}'? This action cannot be undone. (yes/no): ")
-                if confirmation.lower() in ['yes', 'y']:
-                    shutil.rmtree(full_path)
-                    print (f"Project '{project}' has been deleted.")
-                else:
-                    print("Project deletion cancelled.")
+        pass
         
     
     @staticmethod
     def delete_script(script: str, force_delete: bool):
-        """
-        Delete a script from the configured script path.
-        Args:
-            script (str): The name of the script to delete.
-            force_delete (bool): If True, delete the script without confirmation.
-                                If False, prompt the user for confirmation before deletion.
-        Raises:
-            ValueError: If the script path is not configured or if the specified script does not exist.
-        Returns:
-            None
-        Prints a confirmation message after successful deletion, or a cancellation message if the user declines.
-        """
-        
-        config = AsideTasks.retrieve_config()
-        script_config = config.get('script', {}) 
-        script_path = script_config.get('path')
-        if not script_path:
-            raise ValueError("Script path is not configured. Please set the script path before trying to delete a script.")
-        
-        full_path = Path.from_uri(script_path) / script
-        if not full_path.exists():
-            raise ValueError(f"The specified script '{script}' does not exist in the configured script path.")
-        
-        if force_delete:
-            full_path.unlink()
-        else:
-            confirmation = input(f"Are you sure you want to delete the script '{script}'? This action cannot be undone. (yes/no): ")
-            if confirmation.lower() in ['yes', 'y']:
-                full_path.unlink()
-                print (f"Script '{script}' has been deleted.")
-            else:
-                print("Script deletion cancelled.")
+        pass
 
 
 class AsideTasks:
