@@ -482,40 +482,7 @@ class delete_manager:
 
 class AsideTasks:
 
-    @staticmethod
-    def set_if_none(config_dict: dict, key: str, value: any):
-        """
-        Set a configuration value only if the key does not already exist in the dictionary.
-        Args:
-            config_dict (dict): The configuration dictionary to update.
-            key (str): The key to check and potentially set.
-            value (any): The value to assign if the key is not present.
-        Returns:
-            None
-        Note:
-            Prints the updated dictionary to stdout if a new key-value pair is added.
-        """
-
-        if key not in config_dict:
-            config_dict[key] = value
-            print(config_dict)
-
-    @staticmethod
-    def create_config_if_none(config:dict, config_area: str):
-        """
-        Ensure a configuration area exists in the config dictionary.
-        Creates an empty dictionary for the specified config_area key if it does not
-        already exist in the config dictionary.
-        Args:
-            config (dict): The configuration dictionary to modify.
-            config_area (str): The key/section name to ensure exists in the config.
-        Returns:
-            dict: The modified config dictionary with the config_area initialized if needed.
-        """
-
-        if config_area not in config:
-            config[config_area] = {}
-        return config
+    
 
     @staticmethod
     def normalize_path(path_value: str, absolute_path: bool):
