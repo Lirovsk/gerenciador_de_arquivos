@@ -24,32 +24,7 @@ def log_execution(func):
     return wrapper
 
 class config_manager:
-
-    @log_execution
-    @staticmethod
-    def retrieve_config():
-        
-        with open(CONFIG_FILE, 'r') as file:
-            config = json.load(file)
-        return config
     
-    @log_execution
-    @staticmethod
-    def set_nested_config(area_name:str, config_name:str, config_value:any):
-        config = config_manager.retrieve_config()
-        if area_name not in config:
-            config[area_name] = {}
-        config[area_name][config_name] = config_value
-        with open(CONFIG_FILE, 'w') as file:
-            json.dump(config, file, indent=4)
-    
-    @log_execution
-    @staticmethod
-    def set_config(config_name:str, config_value:any, ident_value:int):
-        config = config_manager.retrieve_config()
-        config[config_name] = config_value
-        with open(CONFIG_FILE, 'w') as file:
-            json.dump(config, file, indent=ident_value)
     
     @staticmethod
     def save_config(args: dict):
@@ -93,7 +68,7 @@ class config_manager:
                     print("Invalid answer, please answer with 'yes' or 'no'.")
                     return
             
-        config_manager.set_config(config_name='path', config_value=path_uri, ident_value=4)
+        AsideTasks.set_config(config_name='path', config_value=path_uri, ident_value=4)
         
     
     @staticmethod
@@ -105,14 +80,14 @@ class config_manager:
         
         value_to_set = args.value_to_set
         
-        config_manager.set_nested_config(area_name='project', config_name=config_to_set, config_value=value_to_set)
+        AsideTasks.set_nested_config(area_name='project', config_name=config_to_set, config_value=value_to_set)
             
 
     @staticmethod
     def set_project_extension(args: dict):
         extension_value = AsideTasks.normalize_extension(extension=args.value)
         
-        config_manager.set_nested_config(area_name='project', config_name='default_extension', config_value=extension_value)
+        AsideTasks.set_nested_config(area_name='project', config_name='default_extension', config_value=extension_value)
 
 
     @staticmethod
@@ -120,15 +95,15 @@ class config_manager:
         config_to_set = 'open_files'
         value_to_set = args.value_to_set
         
-        config_manager.set_nested_config(area_name='script', config_name=config_to_set, config_value=value_to_set)
+        AsideTasks.set_nested_config(area_name='script', config_name=config_to_set, config_value=value_to_set)
         
         
     @staticmethod
     def set_script_extension(args:dict):
         extension_value = AsideTasks.normalize_extension(extension=args.value)
         
-        config_manager.set_nested_config(area_name='script', config_name='default_extension', config_value=extension_value)
-        
+        AsideTasks.set_nested_config(area_name='script', config_name='default_extension', config_value=extension_value)
+
 
 class open_manager:
     
@@ -170,7 +145,7 @@ class open_manager:
             None
         """
         
-        config = config_manager.retrieve_config()
+        config = AsideTasks.retrieve_config()
         project_config = config.get('project', {})
         project_path = project_config.get('path')
         if not project_path:
@@ -202,7 +177,7 @@ class open_manager:
             None
         """
         
-        config = config_manager.retrieve_config()
+        config = AsideTasks.retrieve_config()
         script_config = config.get('script', {})
         script_path = script_config.get('path')
         if not script_path:
@@ -249,7 +224,7 @@ class create_manager:
     
     @staticmethod
     def create_folder(name: str):
-        configs = config_manager.retrieve_config()
+        configs = AsideTasks.retrieve_config()
         path = configs.get('path', None)
         if not path:
             print("Path is not configured. Please set the path before trying to create a folder.")
@@ -264,7 +239,7 @@ class create_manager:
         folder_path.mkdir(parents=False, exist_ok=True)
         projects_path.mkdir(parents=False, exist_ok=True)
         scripts_path.mkdir(parents=False, exist_ok=True)
-        
+
 
 class search_manager:
     @staticmethod
@@ -308,7 +283,7 @@ class search_manager:
             - If no items match the search criteria, a message is printed to inform the user.
         """
         
-        config = config_manager.retrieve_config()
+        config = AsideTasks.retrieve_config()
         project_config = config.get('project', {})
         project_path = project_config.get('path')
         if not project_path:
@@ -355,7 +330,7 @@ class search_manager:
             - Only the last part of the file path (filename) is printed.
         """
         
-        config = config_manager.retrieve_config()
+        config = AsideTasks.retrieve_config()
         script_config = config.get('script', {})
         script_path = script_config.get('path')
         if not script_path:
@@ -424,7 +399,7 @@ class delete_manager:
             - Prints a cancellation message if the user declines the confirmation prompt.
         """
         
-        config = config_manager.retrieve_config()
+        config = AsideTasks.retrieve_config()
         project_config = config.get('project', {})
         project_path = project_config.get('path')
         if not project_path:
@@ -459,7 +434,7 @@ class delete_manager:
         Prints a confirmation message after successful deletion, or a cancellation message if the user declines.
         """
         
-        config = config_manager.retrieve_config()
+        config = AsideTasks.retrieve_config()
         script_config = config.get('script', {}) 
         script_path = script_config.get('path')
         if not script_path:
@@ -482,7 +457,34 @@ class delete_manager:
 
 class AsideTasks:
 
-    
+    @log_execution
+    @staticmethod
+    def retrieve_config():
+
+        with open(CONFIG_FILE, 'r') as file:
+            config = json.load(file)
+        return config
+
+    @log_execution
+    @staticmethod
+    def set_nested_config(area_name:str, config_name:str, config_value:any):
+        config = AsideTasks.retrieve_config()
+        if area_name not in config:
+            config[area_name] = {}
+            config[area_name][config_name] = config_value
+
+        with open(CONFIG_FILE, 'w') as file:
+            json.dump(config, file, indent=4)
+
+
+    @log_execution
+    @staticmethod
+    def set_config(config_name: str, config_value: any, ident_value: int):
+        config = AsideTasks.retrieve_config()
+        config[config_name] = config_value
+        with open(CONFIG_FILE, "w") as file:
+            json.dump(config, file, indent=ident_value)
+            
 
     @staticmethod
     def normalize_path(path_value: str, absolute_path: bool):
@@ -528,8 +530,7 @@ class AsideTasks:
                 full_path = Path.cwd().as_uri() + path_value
                 path_check = Path.from_uri(full_path)
         return full_path, path_check
-    
-    
+
     @staticmethod
     def search_for_extension(extension):
         with open(DATA_FILE, 'r') as data_file:
@@ -539,7 +540,6 @@ class AsideTasks:
             result = next((lang for lang in languages if languages[lang] == extension), None)
             return result
 
-
     @staticmethod
     def search_for_name(name):
         with open(DATA_FILE, 'r') as data_file:
@@ -548,8 +548,7 @@ class AsideTasks:
             languages = data.get('languages', {})
             result = languages.get(name, None)
             return result
-        
-    
+
     @staticmethod
     def search_for_name_by_name(name):
         with open(DATA_FILE, 'r') as data_file:
@@ -558,8 +557,7 @@ class AsideTasks:
             languages = data.get('languages', {})
             result = next((lang for lang in languages if lang.lower() == name.lower()), None)
             return result
-        
-    
+
     @staticmethod
     def normalize_extension(extension):
         """
