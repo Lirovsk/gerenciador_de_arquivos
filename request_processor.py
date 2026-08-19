@@ -124,73 +124,21 @@ class open_manager:
         match args.open_area:
             case 'project':
                 open_manager.open_project(args.file_to_open)
+                
             case 'script':
                 open_manager.open_script(args.file_to_open)
+                
             case _:
                 print("Invalid open area.")
         pass
     
     @staticmethod
     def open_project(project_name: str):
-        """
-        Opens a project in Visual Studio Code.
-        Retrieves the configured project path from the config manager, constructs the full path
-        to the specified project, and opens it in VS Code. Handles both directories and files.
-        Args:
-            project_name (str): The name of the project to open.
-        Raises:
-            ValueError: If the project path is not configured in the config file.
-            ValueError: If the specified project does not exist in the configured project path.
-        Returns:
-            None
-        """
-        
-        config = AsideTasks.retrieve_config()
-        project_config = config.get('project', {})
-        project_path = project_config.get('path')
-        if not project_path:
-            raise ValueError("Project path is not configured. Please set the project path before trying to open a project.")
-        
-        full_path = Path.from_uri(project_path) / project_name
-        if not full_path.exists():
-            raise ValueError(f"The specified project '{project_name}' does not exist in the configured project path.")
-        
-        if full_path.is_dir():
-            subprocess.run(['code', full_path], shell=True)
-        else:
-            subprocess.run(['code', '', full_path], shell=True)  
+        pass  
     
     @staticmethod
     def open_script(script_name: str):
-        """
-        Opens a script file or directory in Visual Studio Code.
-        Retrieves the configured script path from the configuration manager,
-        constructs the full path to the specified script, validates its existence,
-        and opens it in VS Code. Directories are opened directly, while files are
-        opened in a new VS Code window.
-        Args:
-            script_name (str): The name of the script file or directory to open.
-        Raises:
-            ValueError: If the script path is not configured in the config file.
-            ValueError: If the specified script does not exist in the configured path.
-        Returns:
-            None
-        """
-        
-        config = AsideTasks.retrieve_config()
-        script_config = config.get('script', {})
-        script_path = script_config.get('path')
-        if not script_path:
-            raise ValueError("Script path is not configured. Please set the script path before trying to open a script.")
-        
-        full_path = Path.from_uri(script_path) / script_name
-        if not full_path.exists():
-            raise ValueError(f"The specified script '{script_name}' does not exist in the configured script path.")
-        
-        if full_path.is_dir():
-            subprocess.run(['code', full_path], shell=True)
-        else:
-            subprocess.run(['code', '', full_path], shell=True)
+        pass
 
 class create_manager:
     
