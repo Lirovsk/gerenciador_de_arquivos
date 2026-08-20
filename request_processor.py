@@ -152,7 +152,7 @@ class create_manager:
                 create_manager.creator_of_folder(args)
             
             case 'project':
-                pass
+                create_manager.create_project(args)
             
             case 'script':
                 pass
@@ -184,6 +184,87 @@ class create_manager:
         
         for path in directory_list:
             path.mkdir(exist_ok=True, parents=True)
+            
+            
+    @staticmethod
+    def create_project(args: dict):
+        name = args.create_name
+        configs = AsideTasks.retrieve_config()
+        path = configs.get('path', None)
+        path = Path.from_uri(path)
+        
+        project_extension = args.file_extension if args.file_extension is not None else configs.get('project', {}).get('default_extension', ".py")
+        project_extension = AsideTasks.normalize_extension(extension=project_extension)
+        
+        project_open_files = args.open_files if args.open_files is not None else configs.get('project', {}).get('open_files', True)
+        project_open_git = args.open_git if args.open_git is not None else configs.get('project', {}).get('open_git', True)
+        
+        if not path:
+            print("Path is not configured. Please set the path before trying to create a project.")
+            return
+        
+        result = AsideTasks.search_for_extension(project_extension)
+        
+        if result:
+            create_manager.create_folder(result)
+            comment = AsideTasks.search_for_comment(result)
+            
+            main_path = path / result / "projects" / name / f"main{project_extension}"
+            readme_path = path / result /"projects" / name / "README.md"
+            folder_path = path / result / "projects" / name
+            
+            
+            try:
+                main_path.parent.mkdir(parents=True)
+            except FileExistsError as e:
+                print(f"the directory {name} already exists on the folder '{result}'. Please choose a different name or delete the existing directory.")
+                return
+            except Exception as e:
+                print(f"An error occurred while creating the directory: {e}")
+                return
+            finally:
+                main_path.touch()
+                main_path.write_text(f"{comment} This is the main file for the {name} project.\n")
+                readme_path.write_text(f"# {name}\n\nThis is the README file for the {name} project.\n\n#### Created by file_manager.\n")
+                
+            if project_open_git:
+                            gitignore_path = folder_path / ".gitignore"
+                            gitignore_path.touch()
+                            gitignore_path.write_text("# Ignore Python bytecode files\n__pycache__/\n*.py[cod]\n\n# Ignore virtual environment directories\nenv/\nvenv/\n\n# Ignore log files\n*.log\n\n# Ignore OS-specific files\n.DS_Store\nThumbs.db\n")
+                            subprocess.run(["git", "init"], cwd=folder_path, shell=True)
+                            subprocess.run(["git", "branch", "-M", "main"], cwd=folder_path, shell=True)
+            
+            if project_open_files:
+                subprocess.run(["code", str(folder_path)], shell=True)
+        else:
+            create_manager.create_folder("others")
+            
+            main_path = path / "others" / "projects" / name / f"main{project_extension}"
+            readme_path = path / "others" / "projects" / name / "README.md"
+            folder_path = path / "others" / "projects" / name
+            try:
+                main_path.parent.mkdir(parents=True)
+            except FileExistsError as e:
+                print(f"the directory {name} already exists on the folder 'others'. Please choose a different name or delete the existing directory.")
+                return
+            except Exception as e:
+                print(f"An error occurred while creating the directory: {e}")
+                return
+            finally:
+                main_path.touch()
+                readme_path.write_text(f"# {name}\n\nThis is the README file for the {name} project.\n\n#### Created by file_manager.\n")
+            
+            if project_open_git:
+                gitignore_path = folder_path / ".gitignore"
+                gitignore_path.touch()
+                gitignore_path.write_text("# Ignore Python bytecode files\n__pycache__/\n*.py[cod]\n\n# Ignore virtual environment directories\nenv/\nvenv/\n\n# Ignore log files\n*.log\n\n# Ignore OS-specific files\n.DS_Store\nThumbs.db\n")
+                subprocess.run(["git", "init"], cwd=folder_path, shell=True)
+                subprocess.run(["git", "branch", "-M", "main"], cwd=folder_path, shell=True)
+
+            if project_open_files:      
+                subprocess.run(["code", str(folder_path)], shell=True)
+            
+        
 
 
 class search_manager:
@@ -365,6 +446,15 @@ class AsideTasks:
             languages = data.get('languages', {})
             result = next((lang for lang in languages if lang.lower() == name.lower()), None)
             return result
+        
+    @staticmethod
+    def search_for_comment(language_name: str):
+        with open(DATA_FILE, 'r') as data_file:
+            """Returns the comment syntax associated with a given programming language name from a JSON data file."""
+            data = json.load(data_file)
+            languages = data.get('comments', {})
+            result = languages.get(language_name, None)
+            return str(result)
 
     @staticmethod
     def normalize_extension(extension):
