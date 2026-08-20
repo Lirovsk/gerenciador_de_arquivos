@@ -353,6 +353,8 @@ class AsideTasks:
         if area_name not in config:
             config[area_name] = {}
             config[area_name][config_name] = config_value
+        else:
+            config[area_name][config_name] = config_value
 
         with open(CONFIG_FILE, 'w') as file:
             json.dump(config, file, indent=4)
