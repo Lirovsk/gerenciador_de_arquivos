@@ -69,9 +69,13 @@ create_parser.add_argument('create_area', help='The area to create in (e.g., pro
 create_parser.add_argument('create_name', help='The name of the file, directory, or folder to create')
 create_parser.add_argument('--extension', '-e', help='The file extension to use when creating a file (optional)', 
                            dest='file_extension', default=None)
-create_parser.add_argument('--open-git', '-og', action='store_true', help='Open the created project in Git (if applicable)',
+create_parser.add_argument('--init-git', '-g', action='store_true', help='Open the created project in Git (if applicable)',
                            dest='open_git', default=None)
-create_parser.add_argument('--open-files', '-of', action='store_true', help='Open the created files (if applicable)',
+create_parser.add_argument('--no--git', '-nog', action='store_false', help='Do not open the created project in Git (if applicable)',
+                           dest='open_git', default=None)
+create_parser.add_argument('--open', '-o', action='store_true', help='Open the created files (if applicable)',
+                           dest='open_files', default=None)
+create_parser.add_argument('--no-open', '-no', action='store_false', help='Do not open the created files (if applicable)',
                            dest='open_files', default=None)
 
 # ==================== search command ====================
