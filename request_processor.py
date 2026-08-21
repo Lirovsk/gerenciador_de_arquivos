@@ -155,7 +155,7 @@ class create_manager:
                 create_manager.create_project(args)
             
             case 'script':
-                pass
+                create_manager.create_script(args)
     
     
     @staticmethod
@@ -265,6 +265,29 @@ class create_manager:
                 subprocess.run(["code", str(folder_path)], shell=True)
             
         
+    @staticmethod
+    def create_script(args: dict):
+        name = args.create_name
+        configs = AsideTasks.retrieve_config()
+        
+        open_file = args.open_files if args.open_files is not None else configs.get('script', {}).get('open_files', True)
+        extension = args.file_extension if args.file_extension is not None else configs.get('script', {}).get('default_extension', ".py")
+        extension = AsideTasks.normalize_extension(extension=extension)
+        
+        result = AsideTasks.search_for_extension(extension)
+        
+        if result:
+            create_manager.create_folder(result)
+            script_path = Path.from_uri(configs.get('path')) / result / "scripts" / f"{name}{extension}"
+            script_path.touch()
+            script_path.write_text(f"{AsideTasks.search_for_comment(result)} This is the {name} script.\n")
+        else:
+            create_manager.create_folder("others")
+            script_path = Path.from_uri(configs.get('path')) / "others" / "scripts" / f"{name}{extension}"
+            script_path.touch()
+        
+        if open_file:
+            subprocess.run(["code", str(script_path)], shell=True)
 
 
 class search_manager:
