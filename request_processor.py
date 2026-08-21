@@ -257,7 +257,6 @@ class create_manager:
             if project_open_git:
                 gitignore_path = folder_path / ".gitignore"
                 gitignore_path.touch()
-                gitignore_path.write_text("# Ignore Python bytecode files\n__pycache__/\n*.py[cod]\n\n# Ignore virtual environment directories\nenv/\nvenv/\n\n# Ignore log files\n*.log\n\n# Ignore OS-specific files\n.DS_Store\nThumbs.db\n")
                 subprocess.run(["git", "init"], cwd=folder_path, shell=True)
                 subprocess.run(["git", "branch", "-M", "main"], cwd=folder_path, shell=True)
 
@@ -306,21 +305,66 @@ class search_manager:
         
         match args.search_area:
             case 'project':
-                search_manager.search_project(args.search_name, args.search_all)
+                search_manager.search_project(args.search_name)
             
             case 'script':
-                search_manager.search_script(args.search_name, args.search_all)
+                search_manager.search_script(args.search_name)
+                
+            case 'for_all':
+                search_manager.search_all(search_area=None)
             
             case _:
                 print("Invalid search area.")
     
-    @staticmethod
-    def search_project(search_name: str, search_all: bool):
-        pass
     
     @staticmethod
-    def search_script(search_name: str, search_all: bool):
-        pass           
+    def search_all(search_area: str, search_name: str | None = None):
+        config = AsideTasks.retrieve_config()
+        path = Path.from_uri(config.get('path', None))
+        
+        if search_area is not None:
+            for language_folder in path.iterdir():
+                for area_folder in language_folder.iterdir():
+                    if len(list(area_folder.iterdir())) != 0 and area_folder.name == search_area:
+                        print(f"{language_folder.name}/{area_folder.name}/")
+                        
+                        for file in area_folder.iterdir():
+                            if search_name is not None and search_name in file.name:
+                                print(f"      {file.name}")
+                            
+                            if search_name is None:
+                                print(f"      {file.name}")
+            
+        else: 
+            for language_folder in path.iterdir():
+                for area_folder in language_folder.iterdir():
+                    if len(list(area_folder.iterdir())) != 0:
+                        print(f"{language_folder.name}/{area_folder.name}/")
+                        
+                        for file in area_folder.iterdir():
+                            if search_name is not None and search_name in file.name:
+                                print(f"      {file.name}")
+                            
+                            if search_name is None:
+                                print(f"      {file.name}")
+        return 
+                        
+    
+    @staticmethod
+    def search_project(search_name: str | None):
+        if search_name is None:
+            search_manager.search_all(search_area='projects')
+        
+        else:
+            search_manager.search_all(search_area='projects', search_name=search_name)
+        
+    
+    @staticmethod
+    def search_script(search_name: str | None):
+        if search_name is None:
+            search_manager.search_all(search_area='scripts')
+        else:
+            search_manager.search_all(search_area='scripts', search_name=search_name)          
 
 class delete_manager:
     @staticmethod
