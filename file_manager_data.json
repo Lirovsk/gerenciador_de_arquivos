@@ -20,5 +20,27 @@
         "R": ".R",
         "Assembly": ".asm",
         "PowerShell": ".ps1"
+    },
+    "comments": {
+        "JavaScript": "//",
+        "Python": "#",
+        "SQL": "--",
+        "TypeScript": "//",
+        "Bash": "#",
+        "Java": "//",
+        "C#": "//",
+        "C++": "//",
+        "C": "//",
+        "PHP": "//",
+        "Go": "//",
+        "Rust": "//",
+        "Kotlin": "//",
+        "Lua": "--",
+        "Ruby": "#",
+        "Dart": "//",
+        "Swift": "//",
+        "R": "#",
+        "Assembly": ";",
+        "PowerShell": "#"
     }
 }
