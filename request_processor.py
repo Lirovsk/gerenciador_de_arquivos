@@ -334,6 +334,8 @@ class search_manager:
                             
                             if search_name is None:
                                 print(f"      {file.name}")
+                        
+                        print("\n", end="")
             
         else: 
             for language_folder in path.iterdir():
@@ -347,6 +349,8 @@ class search_manager:
                             
                             if search_name is None:
                                 print(f"      {file.name}")
+                            
+                        print("\n", end="")
         return 
                         
     
