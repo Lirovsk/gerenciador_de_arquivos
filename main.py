@@ -80,9 +80,8 @@ create_parser.add_argument('--no-open', '-no', action='store_false', help='Do no
 
 # ==================== search command ====================
 search_parser = subparsers.add_parser('search', help='Search for files or directories based on the configured paths')
-search_parser.add_argument('search_area', help='The area to search in (e.g., project, script)')
+search_parser.add_argument('search_area', help='The area to search in (e.g., project, script)', choices=['project', 'script', 'for_all'])
 search_parser.add_argument('search_name', nargs='?', default=None, help='The search query to find specific files or directories (e.g., filename or part of it)')
-search_parser.add_argument('--all', '-a', action='store_true', help='Search for all files and directories in the specified area', dest='search_all')
 
 delete_parser = subparsers.add_parser('delete', help='Delete files or directories based on the configured paths')
 delete_parser.add_argument('delete_area', help='The area to delete from (e.g., project, script)')
