@@ -1,7 +1,7 @@
 # File Manager CLI (v3 Documentation)
 
 - **Repository:** [Lirovsk/gerenciador_de_arquivos](https://github.com/Lirovsk/gerenciador_de_arquivos)
-- **CLI version output:** `file_manager 2.2.3`
+- **Documentation version:** `3.0.0`
 - **Entry point:** `main.py`
 
 ---
