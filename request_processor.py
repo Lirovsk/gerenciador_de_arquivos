@@ -383,9 +383,6 @@ class search_manager:
                 
             case 'for_all':
                 search_manager.search_all(search_area=None)
-            
-            case _:
-                print("Invalid search area.")
     
     
     @staticmethod
