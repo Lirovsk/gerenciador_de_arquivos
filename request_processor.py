@@ -460,9 +460,6 @@ class delete_manager:
             
             case 'script':
                 delete_manager.delete_script(args.delete_name, args.force_delete)
-            
-            case _:
-                print("Invalid delete area.")
                 
             
     @staticmethod

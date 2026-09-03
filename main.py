@@ -59,7 +59,8 @@ set_script_extension.add_argument('value', help='The file extension to set for s
 
 # ==================== open configurations ====================
 open_parser = subparsers.add_parser('open', help='Open files or directories based on the configured paths')
-open_parser.add_argument('open_area', help='The area to open (e.g., project, script)')
+open_parser.add_argument('open_area', help='The area to open (e.g., project, script)',
+                         choices=['project', 'script'])
 open_parser.add_argument('file_to_open', help='Specific files to open within the area (optional)')
 
 # ==================== create command ====================
@@ -83,8 +84,10 @@ search_parser = subparsers.add_parser('search', help='Search for files or direct
 search_parser.add_argument('search_area', help='The area to search in (e.g., project, script)', choices=['project', 'script', 'for_all'])
 search_parser.add_argument('search_name', nargs='?', default=None, help='The search query to find specific files or directories (e.g., filename or part of it)')
 
+# ==================== delete command ====================
 delete_parser = subparsers.add_parser('delete', help='Delete files or directories based on the configured paths')
-delete_parser.add_argument('delete_area', help='The area to delete from (e.g., project, script)')
+delete_parser.add_argument('delete_area', help='The area to delete from (e.g., project, script)',
+                           choices=['project', 'script'])
 delete_parser.add_argument('delete_name', help='The name of the file or directory to delete')
 delete_parser.add_argument('--force', '-f', nargs='?', default=False, const=True, help='Force delete without confirmation (use with caution)', dest='force_delete')
 
