@@ -127,10 +127,7 @@ class open_manager:
                 
             case 'script':
                 open_manager.open_script(args.file_to_open)
-                
-            case _:
-                print("Invalid open area.")
-        pass
+
     
     @staticmethod
     def open_project(project_name: str):
