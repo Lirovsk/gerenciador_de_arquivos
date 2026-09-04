@@ -105,7 +105,7 @@ class config_manager:
 
 
 class open_manager:
-    
+
     @staticmethod
     def open(args: dict):
         """
@@ -119,96 +119,75 @@ class open_manager:
         Returns:
             None
         """
-        
-        match args.open_area:
-            case 'project':
-                open_manager.open_project(args.file_to_open)
-                
-            case 'script':
-                open_manager.open_script(args.file_to_open)
 
-    
+        match args.open_area:
+            case "project":
+                open_manager.open_file(args.open_area, args.file_to_open)
+
+            case 'script':
+                open_manager.open_file(args.open_area, args.file_to_open)
+
     @staticmethod
-    def open_project(project_name: str):
-        results = open_manager.search_for_file(file_area="projects", file_name=project_name)
-        
+    def open_file(area: str, name: str):
+        results = open_manager.search_for_file(file_area=area, file_name=name)
+
         match len(results):
             case 0:
-                print(f"No project found with the name '{project_name}'.")
-                return
-            
+                print(f"No project found with the name '{name}'.")
+
             case 1:
-                project_path, _, _ = results[0]
-                subprocess.run(["code", str(project_path)], shell=True)
+                path, _, _ = results[0]
+                subprocess.run(['code', str(path)], shell=True)
                 return
-            
+
             case _:
                 for i in range(len(results)):
-                    project_path, direction, file_name = results[i]
-                    print(f"{direction}/{file_name} [{i+1}]")
-                    
-                choice = input("which directory to open? (Enter the number corresponding to the directory): ")
-                
+                    _, parents_folder, name_ = results[i]
+                    print(f"{parents_folder}/{name_}  {i+1}\n")
+
+                choice = input("Which file to open: ")
+
                 try:
-                    choice_index = int(choice) - 1
-                    project_path, _, _ = results[choice_index]
-                    subprocess.run(["code", str(project_path)], shell=True)
-                except (ValueError, IndexError):
-                    print("Invalid choice. Please enter a valid number corresponding to the directory.")
-                    return
-                
+                    if int(choice) == 0:
+                        print("Exiting...")
+                        return
                     
-    @staticmethod
-    def open_script(script_name: str):
-        results = open_manager.search_for_file(file_area="scripts", file_name=script_name)
-        
-        match len(results):
-            case 0:
-                print(f"No script found with the name '{script_name}'.")
-                return
-            
-            case 1:
-                script_path, _, _ = results[0]
-                subprocess.run(["code", str(script_path)], shell=True)
-                return
-            
-            case _:
-                for i in range(len(results)):
-                    script_path, direction, file_name = results[i]
-                    print(f"{direction}/{file_name} [{i+1}]")
+                    value = int(choice) - 1
+                    path_, _, _ = results[value]
+
+                    subprocess.run(['code', str(path_)], shell=True)
                     
-                choice = input("which directory to open? (Enter the number corresponding to the directory): ")
-                
-                try:
-                    choice_index = int(choice) - 1
-                    script_path, _, _ = results[choice_index]
-                    subprocess.run(["code", str(script_path)], shell=True)
-                except (ValueError, IndexError):
-                    print("Invalid choice. Please enter a valid number corresponding to the directory.")
-                    return
-    
-    
+                except(ValueError, IndexError):
+                    print("Invalid option.")
+                    return 
+
+
     @staticmethod
     def search_for_file(file_area: str, file_name: str):
         config = AsideTasks.retrieve_config()
         path = Path.from_uri(config.get('path', None))
         
+        if file_area == "project":
+            area = "projects"
+        else:
+            area = "scripts"
+
         if not path:
             print("Path is not configured. Please set the path before trying to open a file.")
             return
-        
+
         directory_list = []
-        
+
         for language_folder in path.iterdir():
             for area_folder in language_folder.iterdir():
-                if area_folder.name == file_area:
+                if area_folder.name == area:
                     for file in area_folder.iterdir():
                         if file_name in file.name:
                             tuple_to_return = (file, f"{language_folder.name}/{area_folder.name}", file.name)
                             directory_list.append(tuple_to_return)
-        
+
         return directory_list
-                            
+
 
 class create_manager:
     
