@@ -22,26 +22,26 @@ def log_execution(func):
         return func(*args, **kwargs)
     return wrapper
 
-class config_manager:
+class ConfigManager:
     
     
     @staticmethod
     def save_config(args: dict):
         match args.config_action:
             case "set-path":
-                config_manager.set_path(args)
+                ConfigManager.set_path(args)
             
             case "set-project-open":
-                config_manager.set_project_open(args)
+                ConfigManager.set_project_open(args)
             
             case "set-project-extension":
-                config_manager.set_project_extension(args)
+                ConfigManager.set_project_extension(args)
             
             case "set-script-open":
-                config_manager.set_script_open(args)
+                ConfigManager.set_script_open(args)
             
             case "set-script-extension":
-                config_manager.set_script_extension(args)
+                ConfigManager.set_script_extension(args)
             
     
     @staticmethod
@@ -104,7 +104,7 @@ class config_manager:
         AsideTasks.set_nested_config(area_name='script', config_name='default_extension', config_value=extension_value)
 
 
-class open_manager:
+class OpenManager:
 
     @staticmethod
     def open(args: dict):
@@ -122,14 +122,14 @@ class open_manager:
 
         match args.open_area:
             case "project":
-                open_manager.open_file(args.open_area, args.file_to_open)
+                OpenManager.open_file(args.open_area, args.file_to_open)
 
             case 'script':
-                open_manager.open_file(args.open_area, args.file_to_open)
+                OpenManager.open_file(args.open_area, args.file_to_open)
 
     @staticmethod
     def open_file(area: str, name: str):
-        results = open_manager.search_for_file(file_area=area, file_name=name)
+        results = OpenManager.search_for_file(file_area=area, file_name=name)
 
         match len(results):
             case 0:
@@ -189,7 +189,7 @@ class open_manager:
         return directory_list
 
 
-class create_manager:
+class CreateManager:
     
     @staticmethod
     def create(args: dict):
@@ -198,13 +198,13 @@ class create_manager:
         """
         match args.create_area:
             case 'folder':
-                create_manager.creator_of_folder(args)
+                CreateManager.creator_of_folder(args)
             
             case 'project':
-                create_manager.create_project(args)
+                CreateManager.create_project(args)
             
             case 'script':
-                create_manager.create_script(args)
+                CreateManager.create_script(args)
     
     
     @staticmethod
@@ -213,10 +213,10 @@ class create_manager:
         
         result = AsideTasks.search_for_name_by_name(name)
         if result:
-            create_manager.create_folder(name)
+            CreateManager.create_folder(name)
         
         else:
-            create_manager.create_folder("others")
+            CreateManager.create_folder("others")
         
     
     @staticmethod
@@ -255,7 +255,7 @@ class create_manager:
         result = AsideTasks.search_for_extension(project_extension)
         
         if result:
-            create_manager.create_folder(result)
+            CreateManager.create_folder(result)
             comment = AsideTasks.search_for_comment(result)
             
             main_path = path / result / "projects" / name / f"main{project_extension}"
@@ -286,7 +286,7 @@ class create_manager:
             if project_open_files:
                 subprocess.run(["code", str(folder_path)], shell=True)
         else:
-            create_manager.create_folder("others")
+            CreateManager.create_folder("others")
             
             main_path = path / "others" / "projects" / name / f"main{project_extension}"
             readme_path = path / "others" / "projects" / name / "README.md"
@@ -325,12 +325,12 @@ class create_manager:
         result = AsideTasks.search_for_extension(extension)
         
         if result:
-            create_manager.create_folder(result)
+            CreateManager.create_folder(result)
             script_path = Path.from_uri(configs.get('path')) / result / "scripts" / f"{name}{extension}"
             script_path.touch()
             script_path.write_text(f"{AsideTasks.search_for_comment(result)} This is the {name} script.\n")
         else:
-            create_manager.create_folder("others")
+            CreateManager.create_folder("others")
             script_path = Path.from_uri(configs.get('path')) / "others" / "scripts" / f"{name}{extension}"
             script_path.touch()
         
@@ -338,7 +338,7 @@ class create_manager:
             subprocess.run(["code", str(script_path)], shell=True)
 
 
-class search_manager:
+class SearchManager:
     @staticmethod
     def search(args: dict):
         """
@@ -354,13 +354,13 @@ class search_manager:
         
         match args.search_area:
             case 'project':
-                search_manager.search_project(args.search_name)
+                SearchManager.search_project(args.search_name)
             
             case 'script':
-                search_manager.search_script(args.search_name)
+                SearchManager.search_script(args.search_name)
                 
             case 'for_all':
-                search_manager.search_all(search_area=None)
+                SearchManager.search_all(search_area=None)
     
     
     @staticmethod
@@ -403,20 +403,20 @@ class search_manager:
     @staticmethod
     def search_project(search_name: str | None):
         if search_name is None:
-            search_manager.search_all(search_area='projects')
+            SearchManager.search_all(search_area='projects')
         
         else:
-            search_manager.search_all(search_area='projects', search_name=search_name)
+            SearchManager.search_all(search_area='projects', search_name=search_name)
         
     
     @staticmethod
     def search_script(search_name: str | None):
         if search_name is None:
-            search_manager.search_all(search_area='scripts')
+            SearchManager.search_all(search_area='scripts')
         else:
-            search_manager.search_all(search_area='scripts', search_name=search_name)          
+            SearchManager.search_all(search_area='scripts', search_name=search_name)          
 
-class delete_manager:
+class DeleteManager:
     @staticmethod
     def delete(args: dict):
         """
@@ -432,13 +432,13 @@ class delete_manager:
             None
         """
         
-        delete_manager.delete_file(area=args.delete_area, name=args.delete_name, force_delete=args.force_delete)
+        DeleteManager.delete_file(area=args.delete_area, name=args.delete_name, force_delete=args.force_delete)
     
     
     @staticmethod
     def delete_file(area: str, name: str, force_delete: bool):
             
-        results = open_manager.search_for_file(file_area=area, file_name=name)
+        results = OpenManager.search_for_file(file_area=area, file_name=name)
         
         match len(results):
             case 0:
