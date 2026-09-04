@@ -432,106 +432,79 @@ class delete_manager:
             None
         """
         
-        match args.delete_area:
-            case 'project':
-                delete_manager.delete_project(args.delete_name, args.force_delete)
-            
-            case 'script':
-                delete_manager.delete_script(args.delete_name, args.force_delete)
-                
-            
-    @staticmethod
-    def delete_project(project: str, force_delete: bool):
-        results = open_manager.search_for_file(file_area="projects", file_name=project)
-        
-        match len(results):
-            case 0:
-                print(f"No project found with the name '{project}'.")
-                return
-            
-            case 1:
-                project_path, _, _ = results[0]
-                if force_delete:
-                    shutil.rmtree(project_path)
-                    print(f"Project '{project}' has been deleted.")
-                else:
-                    confirmation = input(f"Are you sure you want to delete the project '{project}'? (yes/no): ")
-                    if confirmation.lower() in ['yes', 'y']:
-                        shutil.rmtree(project_path)
-                        print(f"Project '{project}' has been deleted.")
-                    else:
-                        print("Deletion cancelled.")
-                
-            case _:
-                for i in range(len(results)):
-                    project_path, direction, file_name = results[i]
-                    print(f"{direction}/{file_name} [{i+1}]")
-                    
-                choice = input("which directory to delete? (Enter the number corresponding to the directory): ")
-                
-                try:
-                    choice_index = int(choice) - 1
-                    project_path, _, name = results[choice_index]
-                    if force_delete:
-                        shutil.rmtree(project_path)
-                        print(f"Project '{name}' has been deleted.")
-                    else:
-                        confirmation = input(f"Are you sure you want to delete the project '{name}'? (yes/no): ")
-                        if confirmation.lower() in ['yes', 'y']:
-                            shutil.rmtree(project_path)
-                            print(f"Project '{name}' has been deleted.")
-                        else:
-                            print("Deletion cancelled.")
-                except (ValueError, IndexError):
-                    print("Invalid choice. Please enter a valid number corresponding to the directory.")
-                    return
-        
+        delete_manager.delete_file(area=args.delete_area, name=args.delete_name, force_delete=args.force_delete)
+    
     
     @staticmethod
-    def delete_script(script: str, force_delete: bool):
-        results = open_manager.search_for_file(file_area="scripts", file_name=script)
+    def delete_file(area: str, name: str, force_delete: bool):
+            
+        results = open_manager.search_for_file(file_area=area, file_name=name)
         
         match len(results):
             case 0:
-                print(f"No script found with the name '{script}'.")
+                print(f"No {area} found with the name '{name}'.")
                 return
             
             case 1:
-                script_path, _, _ = results[0]
+                file_path, _, name_ = results[0]
                 if force_delete:
-                    script_path.unlink()
-                    print(f"Script '{script}' has been deleted.")
+                    if area == "project":
+                        shutil.rmtree(file_path)
+                    else:
+                        file_path.unlink()
+                    print(f"{area.capitalize()} '{name_}' has been deleted.")
                 else:
-                    confirmation = input(f"Are you sure you want to delete the script '{script}'? (yes/no): ")
+                    confirmation = input(f"Are you sure you want to delete the {area} '{name_}'? (yes/no): ")
                     if confirmation.lower() in ['yes', 'y']:
-                        script_path.unlink()
-                        print(f"Script '{script}' has been deleted.")
+                        if area == "project":
+                            shutil.rmtree(file_path)
+                        else:
+                            file_path.unlink()
+                        print(f"{area.capitalize()} '{name_}' has been deleted.")
                     else:
                         print("Deletion cancelled.")
-                
+                        
             case _:
                 for i in range(len(results)):
-                    script_path, direction, file_name = results[i]
-                    print(f"{direction}/{file_name} [{i+1}]")
+                    file_path, direction, name_ = results[i]
+                    print(f"{direction}/{name_} [{i+1}]")
                     
-                choice = input("which directory to delete? (Enter the number corresponding to the directory): ")
+                choice = input(f"Which {area} to delete? (0 to cancel): ")
+                
+                
                 
                 try:
+                    if int(choice) == 0:
+                        print("Deletion cancelled.")
+                        return
+                    
                     choice_index = int(choice) - 1
-                    script_path, _, name = results[choice_index]
+                    file_path, _, name_ = results[choice_index]
                     if force_delete:
-                        script_path.unlink()
-                        print(f"Script '{name}' has been deleted.")
+                        if area == "project":
+                            shutil.rmtree(file_path)
+                        else:
+                            file_path.unlink()
+                            
+                        print(f"{area.capitalize()} '{name_}' has been deleted.")
                     else:
-                        confirmation = input(f"Are you sure you want to delete the script '{name}'? (yes/no): ")
+                        confirmation = input(f"Are you sure you want to delete the {area} '{name_}'? (yes/no): ")
                         if confirmation.lower() in ['yes', 'y']:
-                            script_path.unlink()
-                            print(f"Script '{name}' has been deleted.")
+                            if area == "project":
+                                shutil.rmtree(file_path)
+                            else:
+                                file_path.unlink()
+                                
+                            print(f"{area.capitalize()} '{name_}' has been deleted.")
                         else:
                             print("Deletion cancelled.")
-                except (ValueError, IndexError):
+                except IndexError:
                     print("Invalid choice. Please enter a valid number corresponding to the directory.")
                     return
+                except ValueError:
+                    print("Invalid input. Please enter a valid number corresponding to the directory.")
+                    return
+
 
 
 class AsideTasks:
