@@ -1,5 +1,5 @@
 import argparse
-from request_processor import config_manager, open_manager, search_manager, create_manager, delete_manager
+from request_processor import ConfigManager, CreateManager, OpenManager, DeleteManager, SearchManager
 
 parser = argparse.ArgumentParser(prog='file_manager',
                                   description='A simple file manager that allows you to perform basic file operations.',
@@ -97,16 +97,16 @@ args = parser.parse_args()
 # ==================== Command Handling ====================
 match args.command:
     case 'config':
-        config_manager.save_config(args)
+        ConfigManager.save_config(args)
 
     case 'create':
-        create_manager.create(args)
+        CreateManager.create(args)
 
     case 'open':
-        open_manager.open(args)
+        OpenManager.open(args)
 
     case 'search':
-        search_manager.search(args)
+        SearchManager.search(args)
 
     case 'delete':
-        delete_manager.delete(args)
+        DeleteManager.delete(args)
